@@ -1,50 +1,46 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import usePosts from '../hooks/usePosts';           // Custom hook for post operations
-import useComments from '../hooks/useComments';      // Custom hook for comment operations
-import CreatePost from '../components/CreatePost';   // Create post modal component
-import PostCard from '../components/PostCard';      // Individual post component
-import { commentsAPI } from '../services/api';       // Comments API service
-import SearchBar from '../components/SearchBar';     // User search component
-import { Avatar } from 'primereact/avatar';         // PrimeReact avatar
+import usePosts from '../hooks/usePosts';           
+import useComments from '../hooks/useComments';      
+import CreatePost from '../components/CreatePost';   
+import PostCard from '../components/PostCard';      
+import SearchBar from '../components/SearchBar';     
+import TrendingSidebar from '../components/TrendingSidebar';
+import { Avatar } from 'primereact/avatar';         
+import { Button } from 'primereact/button';         
+import { getErrorMessage, getPublicUrl } from '../services/api';
 
-const HomePage = ({ posts: propPosts, token, currentUser, showToast, fetchPosts, bgColor }) => {
+const HomePage = ({ posts: propPosts, token, currentUser, showToast, fetchPosts, requireAuth }) => {
     const navigate = useNavigate();
     const { createPost } = usePosts(token, currentUser);
-    const { comments, fetchCommentsForPosts } = useComments(token, currentUser);
+    const { comments, fetchCommentsForPosts, addComment } = useComments(token, currentUser);
     const [showComments, setShowComments] = useState({});
     const createPostRef = useRef(null);
 
-    // Fetch comments for posts when they load
-    useEffect(() => {
-        if (propPosts && propPosts.length > 0) {
-            fetchCommentsForPosts(propPosts.map(p => p.id));
-        }
-    }, [propPosts, fetchCommentsForPosts]);
+    // Fetch comments for posts when they load removed for performance optimization.
+    // The UI now uses backend-provided counts instead of mass-fetching comments!
 
     // Handle create post
-    const handleCreatePost = useCallback(async (content) => {
-        if (!token || !currentUser) {
-            showToast('Please login first');
-            return;
-        }
+    const handleCreatePost = useCallback(async (content, imageUrl) => {
+        if (!token || !currentUser) return;
 
         try {
-            await createPost(content);
+            await createPost(content, imageUrl);
             fetchPosts();
             showToast('Posted!');
-            navigate('/');
         } catch (error) {
             console.error('Error creating post:', error);
             showToast('Failed to post');
         }
-    }, [token, currentUser, createPost, fetchPosts, showToast, navigate]);
+    }, [token, currentUser, createPost, fetchPosts, showToast]);
 
     // Function to open create post modal
     const openCreatePost = () => {
-        if (createPostRef.current) {
-            createPostRef.current.open();
-        }
+        requireAuth(() => {
+            if (createPostRef.current) {
+                createPostRef.current.open();
+            }
+        });
     };
 
     const handleToggleComments = (postId) => {
@@ -54,31 +50,24 @@ const HomePage = ({ posts: propPosts, token, currentUser, showToast, fetchPosts,
         setShowComments(prev => ({ ...prev, [postId]: !prev[postId] }));
     };
 
-    const handleAddCommentText = async (postId, commentText) => {
-        if (!token) {
-            showToast('Please login to comment');
-            return;
-        }
+    const handleAddCommentText = useCallback(async (postId, commentText) => {
+        if (!requireAuth()) return;
         if (!commentText || !commentText.trim()) return;
 
         try {
-            await commentsAPI.createComment({
-                post_id: postId,
-                content: commentText
-            });
-            await fetchCommentsForPosts([postId], true);  // Force refresh
+            await addComment(postId, commentText);
+            await fetchPosts(); // Force feed to re-fetch so new comment counts populate on UI
             showToast('Comment added!');
         } catch (error) {
             console.error('Error adding comment:', error);
-            showToast('Failed to add comment');
+            showToast(getErrorMessage(error, 'Failed to add comment'));
+            throw error;
         }
-    };
+    }, [addComment, fetchPosts, requireAuth, showToast]);
 
-    const handleDeleteComment = (commentId) => {
-        // Refresh comments for all posts to update the list
-        if (propPosts && propPosts.length > 0) {
-            fetchCommentsForPosts(propPosts.map(p => p.id), true);
-        }
+    const handleDeleteComment = async (postId, commentId) => {
+        await fetchCommentsForPosts([postId], true);
+        await fetchPosts();
         showToast('Comment deleted');
     };
 
@@ -92,77 +81,86 @@ const HomePage = ({ posts: propPosts, token, currentUser, showToast, fetchPosts,
     }, [fetchPosts, showToast]);
 
     return (
-        <div className="home-page" style={{ width: '100%' }}>
-            {/* Search Bar */}
-            <div style={{ padding: '12px 16px', borderBottom: '1px solid #eff3f4' }}>
-                <SearchBar
-                    token={token}
-                    onSelectUser={handleSearchUser}
-                />
-            </div>
-
-            {/* What's Happening / Create Post Section */}
-            {token && currentUser ? (
-                <div
-                    style={{ padding: '16px', borderBottom: '1px solid #d4c4a8', cursor: 'pointer', transition: 'background-color 0.2s' }}
-                    onClick={openCreatePost}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                >
-                    <div className="flex gap-3">
-                        <Avatar
-                            label={currentUser.username?.charAt(0).toUpperCase() || 'U'}
-                            size="large"
-                            shape="circle"
-                            style={{ backgroundColor: '#FFB347', cursor: 'pointer' }}
-                            onClick={(e) => { e.stopPropagation(); navigate('/profile'); }}
-                        />
-                        <div style={{ flex: 1 }}>
-                            <div style={{ color: '#999', fontSize: '20px', fontWeight: '300' }}>
-                                What is happening?!
+        <div className="w-full pb-6" style={{ paddingLeft: '5%', paddingRight: '5%' }}>
+            <div className="grid">
+                {/* Main Content Column */}
+                <div className="col-12 lg:col-8">
+                    {/* What's Happening Section */}
+                    <div
+                        className="surface-card p-4 mb-5 shadow-3 border-round-2xl border-1 surface-border cursor-pointer hover:shadow-6 transition-all transition-duration-300"
+                        onClick={openCreatePost}
+                    >
+                        <div className="flex gap-4 align-items-center">
+                            <Avatar
+                                image={getPublicUrl(currentUser?.avatar_url)}
+                                label={!currentUser?.avatar_url ? (currentUser?.username?.charAt(0).toUpperCase() || '?') : null}
+                                size="large"
+                                shape="circle"
+                                className="shadow-2"
+                                style={{ backgroundColor: 'var(--color-primary)', color: '#fff' }}
+                                onClick={(e) => { 
+                                    e.stopPropagation(); 
+                                    requireAuth(() => navigate('/profile')); 
+                                }}
+                            />
+                            <div className="flex-1">
+                                <div className="text-xl font-light text-color-secondary">
+                                    What is happening?!
+                                </div>
                             </div>
+
+                            <Button 
+                                label="Post" 
+                                className="p-button-rounded p-button-primary px-4 py-2 font-bold shadow-3"
+                                onClick={(e) => { e.stopPropagation(); openCreatePost(); }}
+                            />
                         </div>
                     </div>
-                </div>
-            ) : (
-                <div style={{ padding: '16px', textAlign: 'center', borderBottom: '1px solid #d4c4a8' }}>
-                    <p style={{ color: '#666' }}>Login to post</p>
-                </div>
-            )}
 
-            {/* Create Post Modal */}
+
+                    {/* Posts Feed - Spacious with clear separation */}
+                    <div className="flex flex-column gap-4">
+                        {propPosts && propPosts.map((post) => (
+                            <PostCard
+                                key={post.id}
+                                post={post}
+                                currentUser={currentUser}
+                                token={token}
+                                comments={comments}
+                                showComments={showComments}
+                                onToggleComments={handleToggleComments}
+                                onAddComment={handleAddCommentText}
+                                onDeletePost={handleDeletePost}
+                                onDeleteComment={handleDeleteComment}
+                                requireAuth={requireAuth}
+                            />
+                        ))}
+                    </div>
+
+                    {(!propPosts || propPosts.length === 0) && (
+                        <div className="text-center p-8 mt-4 surface-card border-round-2xl border-1 border-white-alpha-10 shadow-2">
+                            <i className="pi pi-comments text-primary text-6xl mb-4"></i>
+                            <p className="text-2xl font-medium text-color">No thoughts shared yet.</p>
+                            <p className="text-600 mt-2">Be the first to spark a conversation!</p>
+                        </div>
+                    )}
+                </div>
+
+                {/* Trending Sidebar - Only visible on desktop */}
+                <div className="hidden lg:block lg:col-4 pl-4">
+                    <TrendingSidebar />
+                </div>
+            </div>
+
             <CreatePost
                 ref={createPostRef}
                 currentUser={currentUser}
                 onCreatePost={handleCreatePost}
                 showToast={showToast}
             />
-
-            {/* Posts Feed */}
-            <div className="posts-feed" style={{ padding: '16px' }}>
-                {propPosts && propPosts.map((post) => (
-                    <PostCard
-                        key={post.id}
-                        post={post}
-                        currentUser={currentUser}
-                        token={token}
-                        comments={comments}
-                        showComments={showComments}
-                        onToggleComments={handleToggleComments}
-                        onAddComment={handleAddCommentText}
-                        onDeletePost={handleDeletePost}
-                        onDeleteComment={handleDeleteComment}
-                    />
-                ))}
-            </div>
-
-            {(!propPosts || propPosts.length === 0) && (
-                <div className="text-center p-5">
-                    <p style={{ color: '#536471', fontSize: '18px' }}>No posts yet. Be the first to post!</p>
-                </div>
-            )}
         </div>
     );
+
 };
 
 export default HomePage;

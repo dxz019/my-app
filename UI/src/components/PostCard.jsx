@@ -1,25 +1,24 @@
 import React, { useState } from 'react';
-import { Button } from 'primereact/button';      // PrimeReact button component
-import { Avatar } from 'primereact/avatar';       // PrimeReact avatar component
-import { Dialog } from 'primereact/dialog';       // PrimeReact dialog component
-import { postsAPI } from '../services/api';        // Posts API service
-import CommentSection from './CommentSection';     // Comment section component
+import { Button } from 'primereact/button';
+import { Avatar } from 'primereact/avatar';
+import { Dialog } from 'primereact/dialog';
+import { Card } from 'primereact/card';
+import { postsAPI, getPublicUrl } from '../services/api';
+import CommentSection from './CommentSection';
 
-// PostCard component - displays individual post with comments
 const PostCard = ({
     post,
     currentUser,
     token,
     comments,
     showComments,
-    newComments,
     onToggleComments,
     onAddComment,
     onDeleteComment,
-    onNavigateToProfile,
-    onDeletePost
+    onDeletePost,
+    onUpdatePostLikes,
+    requireAuth
 }) => {
-    // Format date to relative time (e.g., "2h", "3d")
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         const now = new Date();
@@ -35,19 +34,19 @@ const PostCard = ({
         return `· ${date.toLocaleDateString()}`;
     };
 
-    // Get comments for this specific post
     const postComments = comments[post.id] || [];
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [isLiked, setIsLiked] = useState(post.is_liked || false);
+    const [likesCount, setLikesCount] = useState(post.likes_count || 0);
+    const [likeLoading, setLikeLoading] = useState(false);
+    const [reaction, setReaction] = useState(null);
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
-    // Navigate to author profile on click
     const handleAuthorClick = (e) => {
         e.stopPropagation();
-        if (onNavigateToProfile) {
-            onNavigateToProfile(post.author);
-        }
+        window.location.href = `/profile/${post.author?.id}`;
     };
 
-    // Delete post handler with confirmation dialog
     const handleDelete = async (e) => {
         e.stopPropagation();
         if (!token || !currentUser) return;
@@ -67,116 +66,176 @@ const PostCard = ({
         }
     };
 
-    // Check if current user is the post author
+    const handleLike = async () => {
+        if (!requireAuth()) return;
+        if (likeLoading) return;
+        
+        setLikeLoading(true);
+        try {
+            if (isLiked) {
+                const result = await postsAPI.unlikePost(post.id);
+                setLikesCount(result.likes_count);
+                setIsLiked(false);
+            } else {
+                const result = await postsAPI.likePost(post.id);
+                setLikesCount(result.likes_count);
+                setIsLiked(true);
+            }
+            if (onUpdatePostLikes) {
+                onUpdatePostLikes(post.id, !isLiked);
+            }
+        } catch (error) {
+            console.error('Error toggling like:', error);
+        } finally {
+            setLikeLoading(false);
+        }
+    };
+
     const isAuthor = currentUser && post.author && currentUser.id === post.author.id;
 
-    return (
-        // Post container - styled as individual card for each post
-        <div
-            className="p-4 surface-card"
-            style={{
-                backgroundColor: '#ffffff',
-                borderRadius: '12px',
-                marginBottom: '16px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                border: '1px solid #e8e4dc'
-            }}
-        >
-            <div className="flex gap-3">
-                {/* Author Avatar - PrimeReact */}
-                <div className="flex-shrink-0">
-                    <Avatar
-                        label={post.author?.username?.charAt(0).toUpperCase() || 'U'}
-                        size="large"
-                        shape="circle"
-                        style={{ backgroundColor: '#1d9bf0' }}
-                    />
-                </div>
+    const header = (
+        <div className="flex gap-4 p-4 pb-0">
+            <div className="flex-shrink-0">
+                <Avatar
+                    image={getPublicUrl(post.author?.avatar_url)}
+                    label={!post.author?.avatar_url ? (post.author?.username?.charAt(0).toUpperCase() || 'U') : null}
+                    size="large"
+                    shape="circle"
+                    className="cursor-pointer border-2 border-white-alpha-10"
+                    style={{ backgroundColor: 'var(--color-primary)', color: '#ffffff' }}
+                    onClick={handleAuthorClick}
+                />
+            </div>
+            <div className="flex-1">
+                <div className="flex align-items-center flex-wrap gap-2">
+                    <span className="font-bold text-lg cursor-pointer text-color" onClick={handleAuthorClick}>
+                        {post.author?.full_name || post.author?.username || 'User'}
+                    </span>
+                    <span className="text-sm font-medium text-500">@{post.author?.username || 'user'}</span>
+                    <span className="text-sm text-600">· {formatDate(post.created_at)}</span>
 
-                {/* Post Content */}
-                <div className="flex-1">
-                    {/* Post Header - Author info + timestamp */}
-                    <div className="flex align-items-center flex-wrap gap-1 mb-2">
-                        <span className="font-bold text-gray-800 text-base cursor-pointer hover:underline" onClick={handleAuthorClick}>
-                            {post.author?.full_name || post.author?.username || 'User'}
-                        </span>
-                        <span className="text-gray-500 text-base">@{post.author?.username || 'user'}</span>
-                        <span className="text-gray-500 text-base">{formatDate(post.created_at)}</span>
-
-                        {/* Delete button - only for post author */}
-                        {isAuthor && (
-                            <Button
-                                icon="pi pi-trash"
-                                className="p-button-text p-button-rounded p-button-sm p-button-danger ml-auto"
-                                onClick={handleDelete}
-                                aria-label="Delete post"
-                                title="Delete post"
-                            />
-                        )}
-                    </div>
-
-                    {/* Post Text Content */}
-                    <div className="mb-3 text-gray-800 text-base" style={{ lineHeight: '1.5' }}>
-                        <p className="m-0" style={{ whiteSpace: 'pre-wrap' }}>{post.content}</p>
-                    </div>
-
-                    {/* Comment Action Button */}
-                    <div className="flex align-items-center" style={{ maxWidth: '100px' }}>
+                    {isAuthor && (
                         <Button
-                            icon="pi pi-comment"
-                            className="p-button-text p-button-rounded p-button-sm"
-                            style={{ color: '#536471' }}
-                            onClick={(e) => { e.stopPropagation(); onToggleComments(post.id) }}
-                            aria-label="Comments"
+                            icon="pi pi-trash"
+                            className="p-button-text p-button-rounded p-button-sm p-button-danger ml-auto"
+                            onClick={handleDelete}
+                            tooltip="Delete this thought"
                         />
-                        <span className="text-gray-500 text-sm">{postComments.length}</span>
-                    </div>
-
-                    {/* Comments Section - nested component */}
-                    <CommentSection
-                        postId={post.id}
-                        comments={postComments}
-                        currentUser={currentUser}
-                        token={token}
-                        onAddComment={(postId, commentText) => {
-                            if (onAddComment) {
-                                onAddComment(postId, commentText);
-                            }
-                        }}
-                        onDeleteComment={onDeleteComment}
-                    />
-
-                    {/* Delete Confirmation Dialog */}
-                    <Dialog
-                        visible={showDeleteDialog}
-                        onHide={() => setShowDeleteDialog(false)}
-                        header="Delete Post"
-                        modal
-                        style={{ width: '350px' }}
-                        footer={
-                            <div className="flex gap-2 justify-content-end">
-                                <Button
-                                    label="Cancel"
-                                    icon="pi pi-times"
-                                    onClick={() => setShowDeleteDialog(false)}
-                                    className="p-button-text"
-                                />
-                                <Button
-                                    label="Delete"
-                                    icon="pi pi-trash"
-                                    onClick={confirmDelete}
-                                    className="p-button-danger"
-                                    autoFocus
-                                />
-                            </div>
-                        }
-                    >
-                        <p>Are you sure you want to delete this post?</p>
-                    </Dialog>
+                    )}
                 </div>
             </div>
         </div>
     );
+
+    return (
+        <Card header={header} className="mb-4 border-round-2xl border-1 surface-border surface-card shadow-4" style={{ overflow: 'hidden', backgroundColor: '#ffffff' }}>
+            <div className="flex flex-column p-3">
+                <div className="mb-3 text-xl font-light line-height-3 text-color">
+                    <p className="m-0 white-space-pre-wrap">{post.content}</p>
+                </div>
+
+                {post.image_url && (
+                    <div className="mb-3">
+                        <img 
+                            src={getPublicUrl(post.image_url)}
+                            alt="Post attachment"
+                            className="w-full border-round-xl border-1 surface-border"
+                            style={{ maxHeight: '600px', objectFit: 'cover' }}
+                        />
+                    </div>
+                )}
+
+
+                <div className="flex align-items-center gap-5 mt-2 pb-2">
+                    <div className="flex align-items-center gap-2 cursor-pointer" onClick={(e) => { e.stopPropagation(); handleLike(); }}>
+                        <i className={`${isLiked ? 'pi pi-heart-fill text-primary' : 'pi pi-heart text-600'} text-2xl`}></i>
+                        <span className={`text-sm font-bold ${isLiked ? 'text-primary' : 'text-500'}`}>{likesCount}</span>
+                    </div>
+
+                    <div className="flex align-items-center gap-2 cursor-pointer" onClick={(e) => { e.stopPropagation(); requireAuth(() => onToggleComments(post.id)); }}>
+                        <i className="pi pi-comment text-600 text-2xl"></i>
+                        <span className="text-500 text-sm font-bold">{post.comments_count || 0}</span>
+                    </div>
+
+                    <div className="flex align-items-center gap-2 relative">
+                        <span 
+                            className="text-600 cursor-pointer text-2xl"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setShowEmojiPicker(!showEmojiPicker);
+                            }}
+                        >
+                            <i className="pi pi-face-smile"></i>
+                        </span>
+
+                        {showEmojiPicker && (
+                            <div 
+                                className="absolute bottom-100 left-0 surface-card p-2 flex gap-3 mb-2 border-round-xl shadow-6 z-5 border-1 border-white-alpha-10"
+                                style={{ backgroundColor: '#1a1a1a' }}
+                            >
+                                {['🔥', '😂', '😮', '😢', '💯'].map(emoji => (
+                                    <span 
+                                        key={emoji}
+                                        className="cursor-pointer p-1 text-2xl"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            requireAuth(() => {
+                                                setReaction(emoji);
+                                                setShowEmojiPicker(false);
+                                            });
+                                        }}
+                                    >
+                                        {emoji}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
+
+                        {reaction && (
+                            <span 
+                                className="text-sm font-bold surface-hover p-1 px-2 border-round-lg cursor-pointer border-1 border-primary-light"
+                                onClick={(e) => { e.stopPropagation(); requireAuth(() => setReaction(null)); }}
+                            >
+                                {reaction} 1
+                            </span>
+                        )}
+                    </div>
+                </div>
+
+                <CommentSection
+                    postId={post.id}
+                    comments={postComments}
+                    currentUser={currentUser}
+                    token={token}
+                    onAddComment={onAddComment ? (postId, commentText) => onAddComment(postId, commentText) : undefined}
+                    onDeleteComment={(commentId) => {
+                        if (onDeleteComment) onDeleteComment(post.id, commentId);
+                    }}
+                    requireAuth={requireAuth}
+                />
+
+                <Dialog
+                    visible={showDeleteDialog}
+                    onHide={() => setShowDeleteDialog(false)}
+                    header="Delete Thought"
+                    modal
+                    style={{ width: '400px' }}
+                    footer={
+                        <div className="flex gap-3 justify-content-end pt-3">
+                            <Button label="Keep it" className="p-button-text p-button-secondary" onClick={() => setShowDeleteDialog(false)} />
+                            <Button label="Yes, Delete" className="p-button-danger px-4" onClick={confirmDelete} />
+                        </div>
+                    }
+                >
+                    <div className="flex align-items-center gap-3">
+                        <i className="pi pi-exclamation-triangle text-4xl text-orange-500"></i>
+                        <p className="m-0 text-color-secondary">Are you sure you want to permanently remove this thought? This action cannot be undone.</p>
+                    </div>
+                </Dialog>
+            </div>
+        </Card>
+    );
 };
 
 export default PostCard;
+

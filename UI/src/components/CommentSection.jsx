@@ -1,56 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from 'primereact/button';
 import { Avatar } from 'primereact/avatar';
-import { InputText } from 'primereact/inputtext';
+import { InputTextarea } from 'primereact/inputtextarea';
 import { Dialog } from 'primereact/dialog';
-import { commentsAPI } from '../services/api';
+import EmojiPicker from 'emoji-picker-react';
+import { commentsAPI, getPublicUrl } from '../services/api';
 
-// receives data and functions from the parent component
-const CommentSection = ({
-    postId,
-    comments,
-    currentUser,
-    token,
-    onAddComment,
-    onDeleteComment,
-    onShowLogin
-}) => {
-
-    // store the text typed in the comment input
-    const [commentText, setCommentText] = useState('');
+const CommentSection = ({ postId, comments, currentUser, token, onAddComment, onDeleteComment, requireAuth }) => {
+    const [newComment, setNewComment] = useState('');
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [commentToDelete, setCommentToDelete] = useState(null);
+    const emojiRef = useRef(null);
 
-    // when a key is pressed inside the input field
-    const handleKeyPress = (e) => {
-        // If the user presses Enter and the comment is not empty
-        if (e.key === 'Enter' && commentText && commentText.trim()) {
-            handleSubmitComment();
+    const handleSubmit = async (e) => {
+        if (e) e.preventDefault();
+        if (!newComment.trim()) return;
+
+        setLoading(true);
+        try {
+            await onAddComment(postId, newComment);
+            setNewComment('');
+            setShowEmojiPicker(false);
+        } catch (error) {
+            console.error('Comment error:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
-    // ends the comment to the parent component
-    const handleSubmitComment = () => {
-        // Prevent empty comments
-        if (!commentText || !commentText.trim()) return;
-
-        // Call the parent function to add the comment
-        if (onAddComment) {
-            onAddComment(postId, commentText);
-        }
-
-        // Clear the input box after submitting
-        setCommentText('');
+    const handleEmojiClick = (emojiObject) => {
+        setNewComment((prev) => prev + emojiObject.emoji);
     };
 
-    // Handle delete button click
     const handleDeleteClick = (comment, e) => {
         if (e) e.stopPropagation();
         setCommentToDelete(comment);
         setShowDeleteDialog(true);
     };
 
-    // Confirm delete
     const confirmDelete = async () => {
         if (commentToDelete) {
             try {
@@ -66,77 +55,107 @@ const CommentSection = ({
         setCommentToDelete(null);
     };
 
-    // If the user is not logged in
-    if (!token) {
-        return null;
-    }
-
-    // UI comment section 
     return (
-        <div className="mt-3 pt-3" style={{ borderTop: '1px solid #e8e4dc' }}>
-            <div className="flex align-items-center gap-2">
-                <Avatar
-                    label={currentUser?.username?.charAt(0).toUpperCase()}
-                    shape="circle"
-                    size="small"
-                    className="bg-black text-white"
+        <div className="mt-4 pt-3 border-top-1 surface-border">
+            {/* Comment Input Area */}
+            <div className="flex gap-3 mb-4">
+                <Avatar 
+                    image={getPublicUrl(currentUser?.avatar_url)} 
+                    label={!currentUser?.avatar_url ? (currentUser?.username?.charAt(0).toUpperCase() || '?') : null}
+                    shape="circle" 
+                    className="flex-shrink-0"
+                    style={{ backgroundColor: 'var(--color-primary)', color: '#fff' }}
                 />
+                <div className="flex-1 flex flex-column gap-2 relative">
+                    <div className="flex align-items-end gap-2 w-full p-2 surface-card border-1 surface-border border-round-2xl shadow-2 transition-all transition-duration-200">
+                        <InputTextarea
+                            value={newComment}
+                            onChange={(e) => setNewComment(e.target.value)}
+                            placeholder="Add a thought..."
+                            rows={1}
+                            autoResize
+                            className="flex-1 border-none p-2 surface-card text-color focus:shadow-none outline-none"
+                            style={{ resize: 'none', minHeight: '32px' }}
+                            onClick={(e) => {
+                                if (!currentUser) {
+                                    e.preventDefault();
+                                    requireAuth();
+                                }
+                            }}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    if(requireAuth(() => handleSubmit())) {}
+                                }
+                            }}
+                            readOnly={!currentUser}
+                        />
+                        
+                        <div className="flex align-items-center gap-1 flex-shrink-0">
+                            <Button
+                                icon="pi pi-face-smile"
+                                className={`p-button-text p-button-rounded p-button-sm ${showEmojiPicker ? 'text-primary' : 'text-color-secondary'}`}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if(requireAuth()) {
+                                        setShowEmojiPicker(!showEmojiPicker);
+                                    }
+                                }}
+                            />
+                            <Button
+                                icon={loading ? "pi pi-spin pi-spinner" : "pi pi-send"}
+                                className={`p-button-rounded p-button-sm ${newComment.trim() ? 'p-button-primary' : 'p-button-secondary opacity-50'}`}
+                                onClick={() => requireAuth(() => handleSubmit())}
+                                disabled={!newComment.trim() || loading}
+                            />
+                        </div>
+                    </div>
 
-                <InputText
-                    value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    placeholder="Post your reply..."
-                    autoComplete="off"
-                    className="flex-1 p-2 surface-0 border-1 border-gray-300 border-round-xl text-gray-800"
-                    style={{
-                        borderRadius: '20px',
-                        outline: 'none',
-                        fontSize: '15px',
-                        width: '100%',
-                        cursor: 'text'
-                    }}
-                />
-
-                <Button
-                    icon="pi pi-send"
-                    className="p-button-text p-button-rounded"
-                    style={{ color: (commentText && commentText.trim()) ? '#1d9bf0' : '#cfd9de' }}
-                    onClick={handleSubmitComment}
-                    disabled={!commentText || !commentText.trim()} // dont allow sending fake comments
-                />
+                    {showEmojiPicker && (
+                        <div ref={emojiRef} className="absolute bottom-100 right-0 mb-2 z-5 border-round-2xl overflow-hidden shadow-8 border-1 surface-border max-w-full">
+                            <EmojiPicker 
+                                onEmojiClick={handleEmojiClick}
+                                width="100%" 
+                                height={320}
+                                theme={document.documentElement.classList.contains('dark-theme') ? 'dark' : 'light'}
+                                searchPlaceholder="Search emojis..."
+                                skinTonesDisabled
+                                previewConfig={{ showPreview: false }}
+                                lazyLoadEmojis
+                            />
+                        </div>
+                    )}
+                </div>
             </div>
 
-
+            {/* Comments List */}
             {comments && comments.length > 0 && (
-                <div className="mt-2">
+                <div className="flex flex-column gap-4">
                     {comments.map((comment) => {
-                        const isCommentAuthor = currentUser && comment.author && currentUser.id === comment.author.id;
+                        const isAuthor = currentUser && comment.author_id === currentUser.id;
                         return (
-                            <div key={comment.id} className="flex gap-2 mb-3 align-items-start">
-                                <Avatar
-                                    label={comment.author?.username?.charAt(0).toUpperCase() || 'U'}
-                                    shape="circle"
-                                    size="small"
-                                    className="bg-black text-white"
+                            <div key={comment.id} className="flex gap-3 align-items-start">
+                                <Avatar 
+                                    image={getPublicUrl(comment.author?.avatar_url)} 
+                                    label={!comment.author?.avatar_url ? comment.author?.username?.charAt(0).toUpperCase() : null}
+                                    shape="circle" 
+                                    className="border-1 surface-border flex-shrink-0"
+                                    style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-text-main)', width: '32px', height: '32px', fontSize: '14px' }}
                                 />
                                 <div className="flex-1">
-                                    <div className="flex align-items-center gap-2">
-                                        <span className="font-bold text-gray-800 text-base">
-                                            {comment.author?.username || 'User'}
+                                    <div className="flex align-items-center gap-2 mb-1">
+                                        <span className="font-bold text-sm text-color">
+                                            @{comment.author?.username || 'user'}
                                         </span>
-                                        {isCommentAuthor && (
-                                            <Button
-                                                icon="pi pi-trash"
-                                                className="p-button-text p-button-rounded p-button-sm p-button-danger"
-                                                style={{ padding: '2px', minWidth: 'auto', height: 'auto' }}
+                                        <span className="text-xs text-color-secondary">· just now</span>
+                                        {isAuthor && (
+                                            <i 
+                                                className="pi pi-trash text-xs cursor-pointer ml-auto text-400"
                                                 onClick={(e) => handleDeleteClick(comment, e)}
-                                                aria-label="Delete comment"
-                                                title="Delete comment"
-                                            />
+                                            ></i>
                                         )}
                                     </div>
-                                    <p className="m-0 mt-1 text-gray-800 text-base" style={{ lineHeight: '20px' }}>
+                                    <p className="m-0 text-sm text-color-secondary line-height-3">
                                         {comment.content}
                                     </p>
                                 </div>
@@ -146,41 +165,25 @@ const CommentSection = ({
                 </div>
             )}
 
-            {/* Delete Confirmation Dialog */}
+
             <Dialog
                 visible={showDeleteDialog}
-                onHide={() => {
-                    setShowDeleteDialog(false);
-                    setCommentToDelete(null);
-                }}
+                onHide={() => setShowDeleteDialog(false)}
                 header="Delete Comment"
                 modal
                 style={{ width: '350px' }}
                 footer={
-                    <div className="flex gap-2 justify-content-end">
-                        <Button
-                            label="Cancel"
-                            icon="pi pi-times"
-                            onClick={() => {
-                                setShowDeleteDialog(false);
-                                setCommentToDelete(null);
-                            }}
-                            className="p-button-text"
-                        />
-                        <Button
-                            label="Delete"
-                            icon="pi pi-trash"
-                            onClick={confirmDelete}
-                            className="p-button-danger"
-                            autoFocus
-                        />
+                    <div className="flex gap-3 justify-content-end pt-3">
+                        <Button label="Cancel" className="p-button-text p-button-secondary" onClick={() => setShowDeleteDialog(false)} />
+                        <Button label="Delete" className="p-button-danger px-4 py-2" onClick={confirmDelete} />
                     </div>
                 }
             >
-                <p>Are you sure you want to delete this comment?</p>
-                <p style={{ color: '#666', fontSize: '14px' }}>This action cannot be undone.</p>
+                <p className="text-color-secondary">Are you sure you want to delete this reply?</p>
             </Dialog>
         </div>
     );
 };
+
 export default CommentSection;
+

@@ -1,96 +1,113 @@
 import React, { useState, useEffect } from 'react';
-import { AutoComplete } from 'primereact/autocomplete';  // PrimeReact autocomplete with built-in dropdown
-import { Avatar } from 'primereact/avatar';               // PrimeReact avatar
-import { usersAPI } from '../services/api';               // User API
+import { AutoComplete } from 'primereact/autocomplete';
+import { Avatar } from 'primereact/avatar';
+import { getPublicUrl, usersAPI, postsAPI } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
-// SearchBar component - user search with PrimeReact AutoComplete
-const SearchBar = ({ onSelectUser, token }) => {
+const SearchBar = ({ token, onSelectUser }) => {
+    const navigate = useNavigate();
     const [query, setQuery] = useState('');
-    const [results, setResults] = useState([]);
+    const [suggestions, setSuggestions] = useState([]);
 
-    // Debounced search - AutoComplete handles this via suggestions prop
     useEffect(() => {
-        const timer = setTimeout(() => {
-            if (query.length >= 2) {
-                handleSearch();
-            } else {
-                setResults([]);
-            }
-        }, 300);
-
-        return () => clearTimeout(timer);
+        if (!query.trim()) {
+            setSuggestions([]);
+        }
     }, [query]);
 
-    // Search users by username/full name
-    const handleSearch = async () => {
-        if (!query.trim()) {
-            setResults([]);
+    const handleSearch = async (event) => {
+        const value = (event.query || '').trim();
+        if (!value.trim()) {
+            setSuggestions([]);
             return;
         }
 
         try {
-            const response = await usersAPI.searchUsers(query);
-            setResults(response);
+            const [users, posts] = await Promise.all([
+                usersAPI.searchUsers(value),
+                postsAPI.searchPosts(value)
+            ]);
+
+            const combined = [
+                ...users.map((user) => ({
+                    ...user,
+                    type: 'user',
+                    label: `@${user.username}`,
+                    searchText: `${user.username} ${user.full_name || ''}`.trim()
+                })),
+                ...posts.map((post) => ({
+                    ...post,
+                    type: 'post',
+                    label: post.title && post.title !== 'Untitled'
+                        ? post.title
+                        : post.content.slice(0, 60),
+                    searchText: `${post.title || ''} ${post.content || ''}`.trim()
+                }))
+            ];
+
+            setSuggestions(combined);
         } catch (error) {
-            console.error('Error searching user:', error);
-            setResults([]);
+            console.error('Search error:', error);
+            setSuggestions([]);
         }
     };
 
-    // Handle user selection from dropdown
-    const handleSelectUser = (e) => {
-        const user = e.value;
+    const handleSelect = (e) => {
+        const item = e.value;
+        if (item.type === 'user') {
+            navigate(`/profile/${item.id}`);
+        } else if (item.type === 'post') {
+            navigate(`/explore?query=${encodeURIComponent(query.trim() || item.searchText || item.content)}`);
+        }
         setQuery('');
-        if (onSelectUser) {
-            onSelectUser(user);
-        }
     };
 
-    // Custom item template for dropdown
-    const itemTemplate = (user) => {
+    const itemTemplate = (item) => {
+        if (item.type === 'user') {
+            return (
+                <div className="flex align-items-center gap-3 p-2">
+                    <Avatar 
+                        image={getPublicUrl(item.avatar_url)} 
+                        label={!item.avatar_url ? item.username.charAt(0).toUpperCase() : null}
+                        shape="circle" 
+                        style={{ backgroundColor: 'var(--color-primary)', color: '#fff' }}
+                    />
+                    <div className="flex flex-column">
+                        <span className="font-bold text-color">@{item.username}</span>
+                        <span className="text-sm text-500">{item.full_name || 'Member'}</span>
+                    </div>
+                    <span className="ml-auto text-xs font-bold text-600 uppercase">User</span>
+                </div>
+            );
+        }
         return (
             <div className="flex align-items-center gap-3 p-2">
-                <Avatar
-                    label={user.username.charAt(0).toUpperCase()}
-                    shape="circle"
-                    size="small"
-                    style={{ backgroundColor: '#8b7355' }}
-                />
-                <div className="flex flex-column">
-                    <span className="font-semibold text-gray-800">
-                        {user.full_name || user.username}
-                    </span>
-                    <span className="text-gray-500 text-sm">
-                        @{user.username}
-                    </span>
+                <div className="flex align-items-center justify-content-center border-round-lg bg-gray-700" style={{ width: '32px', height: '32px' }}>
+                    <i className="pi pi-comment text-400 text-sm"></i>
                 </div>
+                <div className="flex flex-column" style={{ maxWidth: '250px' }}>
+                    <span className="text-sm text-color line-height-2 overflow-hidden text-overflow-ellipsis white-space-nowrap">
+                        {item.content}
+                    </span>
+                    <span className="text-xs text-600">by @{item.author?.username || 'user'}</span>
+                </div>
+                <span className="ml-auto text-xs font-bold text-600 uppercase">Post</span>
             </div>
         );
     };
 
-    // Don't render if no token (not logged in)
-    if (!token) return null;
-
     return (
-        // PrimeReact AutoComplete - handles input + dropdown natively
-        <div className="w-full">
-            <AutoComplete
-                value={query}
-                suggestions={results}
-                completeMethod={handleSearch}
-                onChange={(e) => setQuery(e.value)}
-                onSelect={handleSelectUser}
-                placeholder="Search"
-                itemTemplate={itemTemplate}
-                field="username"
-                className="w-full"
-                inputClassName="w-full p-3 border-1 border-gray-200 border-round-3xl surface-0"
-                style={{
-                    borderRadius: '24px',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-                }}
-            />
-        </div>
+        <AutoComplete
+            value={query}
+            suggestions={suggestions}
+            completeMethod={handleSearch}
+            field="label"
+            onChange={(e) => setQuery(typeof e.value === 'string' ? e.value : e.value?.label || '')}
+            onSelect={handleSelect}
+            placeholder="Search people or thoughts..."
+            itemTemplate={itemTemplate}
+            className="w-full"
+        />
     );
 };
 

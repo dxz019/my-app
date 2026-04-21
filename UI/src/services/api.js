@@ -1,16 +1,26 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000';
+export const API_BASE_URL = 'http://localhost:3001';
 
-// Create axios instance with default config
+export const getErrorMessage = (error, fallback = 'Something went wrong') =>
+    error?.response?.data?.detail ||
+    error?.response?.data?.errors?.[0]?.message ||
+    error?.message ||
+    fallback;
+
+export const getPublicUrl = (path) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    return `${API_BASE_URL}${path}`;
+};
+
 const api = axios.create({
-    baseURL: API_URL,
+    baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
-// Add token to requests if available
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -19,7 +29,6 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
-// Auth API
 export const authAPI = {
     login: async (username, password) => {
         const formData = new URLSearchParams();
@@ -43,7 +52,6 @@ export const authAPI = {
     },
 };
 
-// Users API
 export const usersAPI = {
     getUserById: async (userId) => {
         const response = await api.get(`/users/${userId}`);
@@ -54,9 +62,18 @@ export const usersAPI = {
         const response = await api.get(`/users/search/${query}`);
         return response.data;
     },
+
+    updateUser: async (userData) => {
+        const response = await api.put('/users/', userData);
+        return response.data;
+    },
+
+    getUserActivity: async (userId) => {
+        const response = await api.get(`/users/${userId}/activity`);
+        return response.data;
+    },
 };
 
-// Posts API
 export const postsAPI = {
     getAllPosts: async () => {
         const response = await api.get('/posts/');
@@ -77,9 +94,36 @@ export const postsAPI = {
         const response = await api.delete(`/posts/${postId}`);
         return response.data;
     },
+
+    likePost: async (postId) => {
+        const response = await api.post(`/posts/${postId}/like`);
+        return response.data;
+    },
+
+    unlikePost: async (postId) => {
+        const response = await api.delete(`/posts/${postId}/like`);
+        return response.data;
+    },
+
+    searchPosts: async (query) => {
+        const response = await api.get('/posts/search/all', {
+            params: { query }
+        });
+        return response.data;
+    },
 };
 
-// Comments API
+export const uploadAPI = {
+    uploadImage: async (formData) => {
+        const response = await api.post('/upload/image', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
+    },
+};
+
 export const commentsAPI = {
     getPostComments: async (postId) => {
         const response = await api.get(`/comments/post/${postId}`);

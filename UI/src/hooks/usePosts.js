@@ -25,7 +25,7 @@ export const usePosts = (token, currentUser) => {
         fetchPosts();
     }, [fetchPosts]);
 
-    const createPost = useCallback(async (content) => {
+    const createPost = useCallback(async (content, image_url = null) => {
         if (!token || !currentUser) {
             throw new Error('Must be logged in to create a post');
         }
@@ -33,6 +33,7 @@ export const usePosts = (token, currentUser) => {
         const postData = {
             title: 'Post',
             content,
+            image_url,
             author_id: currentUser.id,
         };
 

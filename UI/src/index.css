@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap');
+
 /* Base styles */
 * {
     margin: 0;
@@ -6,58 +8,478 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-    background-color: #f5f0e6;
-    color: #1a1a1a;
+    margin: 0;
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: var(--color-bg-page);
+    color: var(--color-text-main);
+    overflow-x: hidden;
 }
 
-.app {
+/* ============================================
+   CONTENT CONTAINER - Side Padding
+   ============================================ */
+.main-wrapper {
+    padding: 0 5%;
+    max-width: 100%;
+}
+
+.content-container {
+    padding: 0 5%;
+    max-width: 100%;
+}
+
+/* Ensure Post and Comment text is always black/white based on theme */
+.post-content,
+.comment-content,
+.white-space-pre-wrap,
+.text-color {
+    color: var(--color-text-main) !important;
+}
+
+/* Comment text specifically */
+.p-comment-list p,
+.comment-text,
+.comment-content {
+    color: var(--color-text-main) !important;
+}
+
+/* All text in cards */
+.surface-card p,
+.post-card p {
+    color: var(--color-text-main) !important;
+}
+
+.text-500,
+.text-600,
+.text-700 {
+    color: var(--color-text-sub) !important;
+}
+
+/* Force main text color */
+.text-0,
+.text-100,
+.text-200,
+.text-300,
+.text-400 {
+    color: var(--color-text-main) !important;
+}
+
+/* ============================================
+   DARK MODE INPUT COLORS
+   ============================================ */
+.dark-theme .p-inputtext,
+.dark-theme .p-inputtextarea,
+.dark-theme .p-password-input,
+.dark-theme .p-autocomplete-input {
+    background-color: #1a1a1a !important;
+    color: #f5f5f5 !important;
+    border-color: #444444 !important;
+}
+
+.dark-theme .p-inputtext::placeholder,
+.dark-theme .p-inputtextarea::placeholder,
+.dark-theme .p-password-input::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Light mode inputs */
+.p-inputtext,
+.p-inputtextarea,
+.p-password-input {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border-color: #dddddd !important;
+}
+
+/* Dark mode Login/Register inputs - dark background for visibility */
+.dark-theme .p-inputtext,
+.dark-theme .p-password-input {
+    background-color: #1a1a1a !important;
+    color: #f5f5f5 !important;
+    border-color: #444444 !important;
+}
+
+/* Autocomplete dropdown panel in dark mode - white background */
+.dark-theme .p-autocomplete-panel,
+.dark-theme .p-autocomplete-items {
+    background-color: #ffffff !important;
+    border: 1px solid #cccccc !important;
+}
+
+.dark-theme .p-autocomplete-item {
+    color: #000000 !important;
+}
+
+.dark-theme .p-autocomplete-item:hover {
+    background-color: #f0f0f0 !important;
+}
+
+.dark-theme .p-inputtext::placeholder,
+.dark-theme .p-inputtextarea::placeholder,
+.dark-theme .p-password-input::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Dark mode textarea (CreatePost) */
+.dark-theme .p-inputtextarea {
+    background-color: #1a1a1a !important;
+    color: #f5f5f5 !important;
+    border-color: #444444 !important;
+}
+
+/* ============================================
+   INPUT FOCUS GLOW EFFECTS
+   ============================================ */
+.p-inputtext:focus,
+.p-inputtextarea:focus,
+.p-password-input:focus {
+    box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.25), 0 2px 8px rgba(0, 102, 255, 0.15) !important;
+    border-color: #0066FF !important;
+    outline: none !important;
+}
+
+.p-inputtext:focus,
+.p-inputtextarea:focus {
+    background-color: var(--color-input-focus-bg) !important;
+}
+
+/* Focus ring animation */
+.p-inputtext:focus-visible,
+.p-inputtextarea:focus-visible {
+    animation: focusPulse 0.3s ease-out;
+}
+
+@keyframes focusPulse {
+    0% { box-shadow: 0 0 0 1px rgba(0, 102, 255, 0.5); }
+    50% { box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.2); }
+    100% { box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.25); }
+}
+
+/* ============================================
+   BUTTON HOVER + GRADIENT EFFECTS
+   ============================================ */
+.p-button {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.p-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transition: left 0.5s ease;
+}
+
+.p-button:hover::before {
+    left: 100%;
+}
+
+.p-button:not(.p-button-text):not(.p-button-outlined):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 102, 255, 0.35);
+}
+
+.p-button:not(.p-button-text):not(.p-button-outlined):active {
+    transform: translateY(0);
+}
+
+/* Primary button gradient */
+.p-button[style*="background-color: #0066FF"],
+.p-button.p-button-primary {
+    background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%) !important;
+    border: none !important;
+}
+
+.p-button[style*="background-color: #0066FF"]:hover,
+.p-button.p-button-primary:hover {
+    background: linear-gradient(135deg, #1971fc 0%, #0066FF 100%) !important;
+    box-shadow: 0 8px 24px rgba(0, 102, 255, 0.45);
+}
+
+/* ============================================
+   MICRO-INTERACTIONS
+   ============================================ */
+.cursor-pointer {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cursor-pointer:hover {
+    transform: scale(1.02);
+}
+
+.cursor-pointer:active {
+    transform: scale(0.98);
+}
+
+/* Link hover effects */
+a, .p-link {
+    transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+/* Icon animations */
+.pi {
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.pi:hover {
+    transform: scale(1.15);
+}
+
+/* Avatar micro-interaction */
+.p-avatar:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Card hover lift */
+.surface-card, .post-card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.surface-card:hover, .post-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+
+/* ============================================
+   ENHANCED BACKGROUND + SHADOWS
+   ============================================ */
+.app-container {
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, var(--color-bg-page) 0%, rgba(0, 102, 255, 0.03) 100%);
 }
 
-/* Header Styles */
-.header {
+/* Header glass effect */
+.full-width-header {
+    width: 100%;
+    height: 72px;
+    background: var(--color-bg-header);
+    border-bottom: 1px solid var(--color-border);
     position: sticky;
     top: 0;
-    background: rgba(245, 240, 230, 0.95);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid #d4d0c8;
-    z-index: 100;
+    -webkit-backdrop-filter: blur(12px);
 }
 
-.header-content {
-    max-width: 700px;
+.header-container {
+    width: 100%;
+    padding: 0 2rem;
     margin: 0 auto;
-    padding: 12px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.logo {
-    font-size: 28px;
-    font-weight: 900;
-    color: #1a1a1a;
-    margin: 0;
+/* Enhanced shadows */
+.shadow-lg, .shadow-xl {
+    transition: box-shadow 0.3s ease;
 }
 
-.user-info {
+.shadow-lg:hover {
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+}
+
+/* Post card enhanced shadow */
+.post-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dialog shadow */
+.p-dialog {
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4) !important;
+}
+
+.p-dialog-header {
+    background: var(--color-bg-card) !important;
+    border-bottom: 1px solid var(--color-border) !important;
+}
+
+/* Toast enhanced */
+.p-toast-message {
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   LOGO/HEADER STYLING
+   ============================================ */
+.brand-logo {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+    background: linear-gradient(135deg, #0066FF 0%, #00a3ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    transition: all 0.3s ease;
+}
+
+/* Orange in dark mode */
+.dark-theme .brand-logo {
+    background: linear-gradient(135deg, #FF6600 0%, #ff9933 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.brand-logo:hover {
+    background: linear-gradient(135deg, #1971fc 0%, #00b3ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.dark-theme .brand-logo:hover {
+    background: linear-gradient(135deg, #ff8533 0%, #ff9933 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+@keyframes juggle {
+    0% { transform: translateY(0) scale(1.06) rotate(-1deg); }
+    25% { transform: translateY(-3px) scale(1.06) rotate(2deg); }
+    50% { transform: translateY(0) scale(1.06) rotate(-2deg); }
+    75% { transform: translateY(-2px) scale(1.06) rotate(1deg); }
+    100% { transform: translateY(0) scale(1.06) rotate(-1deg); }
+}
+
+.brand-logo {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 38px;
+    font-weight: 700;
+    color: var(--color-primary);
+    background: linear-gradient(135deg, #44AAFF 20%, #0066FF 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-shadow: 2px 2px 8px rgba(0, 102, 255, 0.2);
+    display: inline-block;
+}
+
+.brand-logo:hover {
+    animation: juggle 0.6s ease-in-out infinite;
+    filter: drop-shadow(0 0 15px rgba(0, 102, 255, 0.4));
+}
+
+.nav-link {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-text-sub);
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 12px;
+    transition: all 0.2s;
+}
+
+.nav-link:hover {
+    color: var(--color-text-main);
+    background-color: var(--color-bg-hover);
+}
+
+.nav-link.active {
+    color: var(--color-primary);
+}
+
+/* Main Content Layout */
+.main-wrapper {
+    flex: 1;
+    width: 100%;
+    padding: 2rem 1rem;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 12px;
-    color: #666;
 }
 
-.username-display {
-    font-weight: 500;
-    color: #1a1a1a;
+.content-container {
+    width: 100%;
+    max-width: 1400px;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
 }
 
-/* Main Content */
-.main {
-    max-width: 700px;
-    margin: 0 auto;
-    padding: 16px;
+/* Card Styles - Premium Dark with 3D Interaction */
+.surface-card {
+    background-color: var(--color-bg-card) !important;
+    border: 1px solid var(--color-border) !important;
+    border-radius: var(--radius-lg) !important;
+    color: var(--color-text-main) !important;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    perspective: 1000px;
+}
+
+.surface-card:hover {
+    border-color: var(--color-primary) !important;
+    transform: translateY(-10px) scale(1.02) rotateX(1deg);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7), 0 0 30px rgba(255, 102, 0, 0.15) !important;
+}
+
+/* Button & Interactable Styling */
+.p-button {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border-radius: 50px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px !important;
+    padding: 0.8rem 2rem !important;
+}
+
+.p-button:hover {
+    transform: scale(1.08) !important;
+    filter: brightness(1.2) !important;
+    box-shadow: 0 10px 25px rgba(255, 102, 0, 0.3) !important;
+}
+
+.p-button-outlined:hover {
+    background-color: rgba(255, 102, 0, 0.1) !important;
+}
+
+/* Input Styles - Premium Dark */
+.p-inputtext, .p-inputtextarea {
+    background: #262626 !important;
+    border: 1px solid var(--color-border) !important;
+    color: var(--color-text-main) !important;
+    border-radius: 12px !important;
+    padding: 0.75rem 1rem !important;
+}
+
+.p-inputtext:focus, .p-inputtextarea:focus {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 2px var(--color-primary-light) !important;
+}
+
+/* Dialog/Modal Refinement */
+.p-dialog .p-dialog-content {
+    background-color: var(--color-bg-card) !important;
+    color: var(--color-text-main) !important;
+}
+
+.p-dialog .p-dialog-header {
+    background-color: var(--color-bg-card) !important;
+    color: var(--color-text-main) !important;
+    border-bottom: 1px solid var(--color-border) !important;
+}
+
+.p-dialog .p-dialog-footer {
+    background-color: var(--color-bg-card) !important;
+    border-top: 1px solid var(--color-border) !important;
 }
 
 /* Search Styles */
@@ -639,4 +1061,219 @@ body {
 .post-textarea:focus {
     border-color: #e65c00 !important;
     outline: none !important;
+}
+/* Authentication Forms */
+.app-container {
+    background-color: var(--color-bg-page);
+    min-height: 100vh;
+}
+
+.no-scroll {
+    overflow: hidden !important;
+    height: 100vh !important;
+}
+
+.main-wrapper {
+    padding-top: 80px; /* Space for sticky header */
+    display: flex;
+    justify-content: center;
+}
+
+.auth-page-container {
+    background-color: #121212 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Background Watermark Animation */
+.auth-page-container::before {
+    content: "THOUGHTS";
+    position: absolute;
+    top: 60%;
+    left: 40%;
+    transform: translate(-50%, -50%);
+    font-size: 25vw;
+    font-weight: 900;
+    color: rgba(255, 102, 0, 0.03); /* Extremely subtle orange */
+    letter-spacing: 2vw;
+    z-index: 0;
+    pointer-events: none;
+    white-space: nowrap;
+    animation: drift 20s ease-in-out infinite;
+}
+
+@keyframes drift {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-52%, -48%) scale(1.05); }
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 500px;
+    padding: 2rem;
+    background-color: #1a1a1a;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    z-index: 1; /* Above watermark */
+}
+
+.auth-input-container {
+    width: 100% !important;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Standardized input style for all auth fields */
+.auth-input {
+    width: 100% !important;
+    border-radius: 24px !important;
+    background-color: #f5f0e6 !important;
+    border: 1px solid #d4c4a8 !important;
+    padding: 14px 18px !important;
+    transition: all 0.2s ease;
+    font-size: 15px;
+    color: #1a1a1a;
+}
+
+.auth-input:focus {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 2px rgba(0, 102, 255, 0.2) !important;
+    transform: translateY(-1px);
+    outline: none;
+}
+
+/* Fixed button styles with hover effects */
+.btn-auth-submit {
+    border-radius: 24px !important;
+    background-color: var(--color-primary) !important;
+    border: none !important;
+    padding: 14px !important;
+    font-weight: bold !important;
+    font-size: 16px !important;
+    color: #ffffff !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    cursor: pointer;
+}
+
+.btn-auth-submit:hover {
+    background-color: #e65c00 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 102, 0, 0.4) !important;
+}
+
+.btn-auth-submit:active {
+    transform: translateY(0);
+}
+
+/* Fix for PrimeReact Password component specifically */
+.p-password.auth-input-password {
+    display: flex !important;
+    width: 100% !important;
+}
+
+.p-password.auth-input-password .p-password-input {
+    width: 100% !important;
+}
+
+/* Ensure the toggle icon is correctly positioned inside the pill shape */
+.p-password.auth-input-password .p-password-icon {
+    right: 1.25rem !important;
+    color: #8b7355 !important;
+}
+
+/* --- Premium Dropdown Menu Customization --- */
+.p-menu {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+    padding: 0.5rem;
+    min-width: 14rem;
+}
+
+.p-menu .p-menuitem-link {
+    border-radius: 10px;
+    margin: 0.2rem 0;
+    transition: all 0.2s ease;
+    padding: 0.75rem 1rem;
+}
+
+.p-menu .p-menuitem-link:hover {
+    background: var(--color-bg-hover) !important;
+}
+
+.p-menu .p-menuitem-text {
+    color: var(--color-text-main);
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.p-menu .p-menuitem-icon {
+    color: var(--color-primary);
+    font-size: 1.1rem;
+    margin-right: 0.75rem;
+}
+
+.p-menu .p-submenu-header {
+    background: transparent;
+    color: var(--color-text-sub);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0.5rem 1rem 0.2rem;
+    margin-top: 0.2rem;
+}
+
+.p-menu .p-menuitem-separator {
+    border-top: 1px solid var(--color-border);
+    margin: 0.4rem 0;
+}
+
+/* Placeholder styles - uses CSS variable */
+.p-inputtext::placeholder,
+.p-password-input::placeholder {
+    color: var(--color-input-placeholder) !important;
+    opacity: 1;
+}
+
+/* Ensure input text color inherits properly */
+.p-inputtext {
+    color: var(--color-input-text) !important;
+}
+
+/* Placeholder styles - dark theme default */
+.p-inputtext::placeholder,
+.p-password-input::placeholder {
+    color: rgba(0, 0, 0, 0.4) !important;
+    opacity: 1;
+}
+
+/* Ensure input text color is black */
+.p-inputtext {
+    color: #000000 !important;
+}
+
+/* Password input text color */
+.p-password-input {
+    color: #000000 !important;
+}
+
+/* Textarea text color */
+.p-inputtextarea {
+    color: #000000 !important;
+}
+
+.p-inputtextarea::placeholder {
+    color: rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Light theme placeholder */
+.light-theme .p-inputtext::placeholder,
+.light-theme .p-password-input::placeholder {
+    color: rgba(0, 0, 0, 0.4) !important;
 }
