@@ -1,0 +1,132 @@
+/**
+ * Design Tokens - Color Palette
+ */
+
+  :root {
+      /* ============================================
+         LIGHT THEME - Pure White Cards + Baby Blue Background
+         ============================================ */
+
+      /* Vibrant Blue - Brand color */
+      --color-primary: #0066FF;
+      --color-primary-hover: #0052cc;
+      --color-primary-light: rgba(0, 102, 255, 0.15);
+      --color-primary-dark: #0044cc;
+      
+        /* Page & Card: Light blue cards for the light UI */
+        --color-bg-page: #e8f4ff;
+        --color-bg-card: #ffffff; /* Light blue color background for the box */
+        --color-bg-header: #ffffff;
+        --color-bg-elevated: #f0f7ff;
+        --color-bg-hover: #dcefff;
+        --color-bg-primary-light: rgba(0, 102, 255, 0.1);
+        
+        /* Text: Black on light blue for high contrast */
+        --color-text-main: #111111; /* Pure black font */
+        --color-text-sub: #333333;
+        --color-text-muted: #666666;
+        
+        /* Borders: Light blue tones */
+        --color-border: #a0c4f0;
+        --color-border-bright: #70a8e8;
+        
+        /* Cursor effect colors - BLUE in light mode */
+        --cursor-dot: #0066FF;
+        --cursor-glow: rgba(0, 102, 255, 0.25);
+        --cursor-follower: rgba(0, 102, 255, 0.12);
+        --cursor-follower-dot: rgba(0, 102, 255, 0.5);
+        --cursor-line: rgba(0, 102, 255, 0.3);
+        
+        /* Input variables - white bg, blue border */
+        --color-input-bg: #FFFFFF;
+        --color-input-border: #a0c4f0;
+        --color-input-focus-bg: #ffffff;
+        --color-input-text: #0a0a0a;
+        --color-input-placeholder: rgba(10, 10, 10, 0.5);
+    
+    /* Spacing & Sizing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    
+       /* Shadows */
+       --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+       --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+       --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.15);
+       
+       /* Elevation layers for depth system */
+       --elevation-1: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+       --elevation-2: 0 4px 6px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+       --elevation-3: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
+       --elevation-4: 0 20px 25px rgba(0,0,0,0.15), 0 10px 10px rgba(0,0,0,0.05);
+       --elevation-5: 0 25px 50px rgba(0,0,0,0.2), 0 15px 20px rgba(0,0,0,0.1);
+       
+       /* Surface elevated for floating cards */
+       --surface-elevated: var(--color-bg-elevated, var(--color-bg-card));
+    
+    /* Border Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    
+    /* Fonts */
+    --font-heading: 'Inter', -apple-system, sans-serif;
+    --font-body: 'Inter', -apple-system, sans-serif;
+}
+
+/* ============================================
+   DARK THEME - Black Background + Orange Primary
+   ============================================ */
+
+.dark-theme {
+       --color-primary: #FF6600;
+       --color-primary-hover: #ff7722;
+       --color-primary-light: rgba(255, 102, 0, 0.15);
+       --color-primary-dark: #cc5200;
+       
+        /* Page & Card: Black + Orange theme for dark mode */
+        --color-bg-page: #000000;
+        --color-bg-card: #0f0f0f;
+        --color-bg-header: #0f0f0f;
+        --color-bg-elevated: #151515;
+        --color-bg-hover: #1a1a1a;
+        
+        /* Text: White tones with orange accent */
+        --color-text-main: #FF6600;
+        --color-text-sub: #ff8833;
+        --color-text-muted: #cc5500;
+        
+        /* Borders: Orange tones */
+        --color-border: #333333;
+        --color-border-bright: #444444;
+        
+        /* Cursor effect colors - ORANGE in dark mode */
+        --cursor-dot: #FF6600;
+        --cursor-glow: rgba(255, 102, 0, 0.25);
+        --cursor-follower: rgba(255, 102, 0, 0.15);
+        --cursor-follower-dot: rgba(255, 102, 0, 0.6);
+        --cursor-line: rgba(255, 102, 0, 0.4);
+       
+       /* Intro logo colors - ORANGE in dark mode */
+       --intro-logo-primary: #FF6600;
+       --intro-logo-glow: rgba(255, 102, 0, 0.2);
+       --intro-particle-color: rgba(255, 102, 0, 0.8);
+       
+       /* Input variables - black bg, orange border */
+       --color-input-bg: #141414;
+       --color-input-border: #333333;
+       --color-input-focus-bg: #1a1a1a;
+       --color-input-text: #ffffff;
+       --color-input-placeholder: rgba(255, 255, 255, 0.5);
+      --color-input-focus-bg: #111111;
+      --color-input-text: #ffffff;
+      --color-input-placeholder: rgba(255, 255, 255, 0.5);
+
+      /* Shadows */
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.6);
+      --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.7);
+    }

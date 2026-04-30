@@ -1,0 +1,39 @@
+{
+  "name": "node-backend",
+  "version": "1.0.0",
+  "description": "Node.js backend API for MY-APP",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "seed": "node src/models/seed.js",
+    "migrate": "node src/models/migrate.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^9.6.0",
+    "cors": "^2.8.6",
+    "dompurify": "^3.4.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "express-rate-limit": "^8.3.2",
+    "helmet": "^8.1.0",
+    "jsdom": "^29.0.2",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.1.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "winston": "^3.19.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^2.1.8",
+    "cross-env": "^10.1.0",
+    "nodemon": "^3.1.4",
+    "supertest": "^7.2.2",
+    "vitest": "^2.1.8"
+  }
+}

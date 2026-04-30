@@ -1,0 +1,242 @@
+/* Cinematic Intro Overlay */
+.intro-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.intro-overlay.intro {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.intro-overlay.hold {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.intro-overlay.outro {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Dark Background with Floating Dots */
+.intro-bg-gradient {
+    position: absolute;
+    inset: 0;
+    background: 
+        radial-gradient(ellipse at 50% 50%, #1a1a2e 0%, #0f0f1a 50%, #0a0a12 100%);
+    z-index: 0;
+}
+
+/* Large Floating Particles (Dots) */
+.intro-particles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.intro-particle {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 102, 255, 0.8), transparent);
+    opacity: 0;
+    transform: translate(0, 0) scale(0);
+    animation: particle-entrance 6s ease-out forwards, float-particle 8s ease-in-out infinite;
+}
+
+/* Bigger dots - varying sizes */
+.intro-particle:nth-child(odd) {
+    width: 12px;
+    height: 12px;
+}
+.intro-particle:nth-child(3n) {
+    width: 20px;
+    height: 20px;
+}
+.intro-particle:nth-child(5n) {
+    width: 8px;
+    height: 8px;
+}
+.intro-particle:nth-child(7n) {
+    width: 16px;
+    height: 16px;
+}
+.intro-particle:nth-child(11n) {
+    width: 24px;
+    height: 24px;
+}
+
+.intro-overlay.intro .intro-particle {
+    animation: particle-entrance 6s ease-out forwards,
+               float-particle 8s ease-in-out infinite;
+}
+
+/* Logo Wrapper */
+.intro-logo-wrapper {
+    position: relative;
+    z-index: 3;
+    perspective: 1000px;
+}
+
+.intro-logo {
+    position: relative;
+    display: inline-block;
+    opacity: 0;
+    transform: scale(0.6) translateY(40px);
+    filter: blur(30px);
+    transition: all 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.intro-overlay.intro .intro-logo {
+    opacity: 1;
+    transform: scale(1.05) translateY(0);
+    filter: blur(0);
+}
+
+.intro-overlay.hold .intro-logo {
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+}
+
+.intro-overlay.outro .intro-logo {
+    transform: scale(1.2) translateY(-40px);
+    filter: blur(20px);
+    opacity: 0;
+}
+
+.intro-logo-text {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 900;
+    font-size: clamp(3.5rem, 12vw, 7rem);
+    letter-spacing: 0.1em;
+    background: linear-gradient(135deg, #6ec5ff 0%, #0066FF 50%, #0044cc 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+    display: block;
+    position: relative;
+}
+
+.intro-logo-glow {
+    position: absolute;
+    inset: -30%;
+    background: radial-gradient(circle, rgba(0, 102, 255, 0.3) 0%, transparent 70%);
+    filter: blur(60px);
+    animation: pulse-glow 3s ease-in-out infinite;
+    z-index: -1;
+}
+
+/* Tagline */
+.intro-tagline {
+    position: absolute;
+    bottom: 18%;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    opacity: 0;
+    transition: all 1s ease;
+    z-index: 3;
+}
+
+.intro-overlay.hold .intro-tagline {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    transition-delay: 1.5s;
+}
+
+.intro-overlay.outro .intro-tagline {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+    transition-delay: 0s;
+}
+
+.intro-tagline p {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: clamp(1.1rem, 3vw, 1.8rem);
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+/* Animations */
+@keyframes particle-entrance {
+    0% {
+        opacity: 0;
+        transform: translate(0, 0) scale(0);
+        background: radial-gradient(circle, rgba(0, 102, 255, 0), transparent);
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 0.3;
+        transform: translate(var(--tx, 0), var(--ty, 0)) scale(1);
+        background: radial-gradient(circle, rgba(0, 102, 255, 0.4), transparent);
+    }
+}
+
+@keyframes float-particle {
+    0%, 100% {
+        transform: translate(var(--tx, 0), var(--ty, 0)) scale(1);
+        opacity: 0.3;
+    }
+    25% {
+        transform: translate(calc(var(--tx, 0) * 1.1), calc(var(--ty, 0) * 0.9)) scale(1.1);
+        opacity: 0.4;
+    }
+    50% {
+        transform: translate(calc(var(--tx, 0) * 0.95), calc(var(--ty, 0) * 1.1)) scale(0.95);
+        opacity: 0.25;
+    }
+    75% {
+        transform: translate(calc(var(--tx, 0) * 1.05), calc(var(--ty, 0) * 0.95)) scale(1.05);
+        opacity: 0.35;
+    }
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.3;
+    }
+    50% {
+        transform: scale(1.4);
+        opacity: 0.5;
+    }
+}
+
+/* Light Theme Variant */
+.light-theme .intro-bg-gradient {
+    background: 
+        radial-gradient(ellipse at 50% 50%, #e8f0f8 0%, #d0e0f0 50%, #b8d4f0 100%);
+}
+
+.light-theme .intro-logo-text {
+    background: linear-gradient(135deg, #0066FF 0%, #0044cc 50%, #003399 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.light-theme .intro-logo-glow {
+    background: radial-gradient(circle, rgba(0, 102, 255, 0.2) 0%, transparent 70%);
+}
+
+.light-theme .intro-particle {
+    background: radial-gradient(circle, rgba(0, 102, 255, 0.5), transparent);
+}
+
+.light-theme .intro-tagline p {
+    color: rgba(10, 22, 40, 0.6);
+}

@@ -110,11 +110,3 @@ cd SQL && pytest
 2. The dual backend implementation serves educational purposes
 3. For production: Consider PostgreSQL for better concurrency
 4. Environment variables required - see `.env.example` files
-
-## 🤝 Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on contributing to this project.
-
----
-
-*Built with ❤️ for learning full-stack development*
