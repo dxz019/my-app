@@ -53,12 +53,21 @@ vi.mock('primereact/dialog', () => ({
 }));
 
 vi.mock('primereact/button', () => ({
-    Button: ({ children, onClick, disabled, ...props }) => (
-        <button onClick={onClick} disabled={disabled} {...props}>
-            {children}
-        </button>
-    ),
-}));
+     Button: ({ children, onClick, disabled, label, icon, className, style, type, link, tooltip, ...props }) => (
+         <button
+             onClick={onClick}
+             disabled={disabled}
+             className={className}
+             style={style}
+             type={type}
+             title={tooltip}
+             label={label}
+             {...props}
+         >
+             {label || children}
+         </button>
+     ),
+ }));
 
 vi.mock('primereact/avatar', () => ({
     Avatar: ({ label, image, ...props }) => (
