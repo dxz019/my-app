@@ -30,7 +30,7 @@
 .intro-bg-gradient {
     position: absolute;
     inset: 0;
-    background: 
+    background:
         radial-gradient(ellipse at 50% 50%, #1a1a2e 0%, #0f0f1a 50%, #0a0a12 100%);
     z-index: 0;
 }
@@ -113,32 +113,28 @@
     opacity: 0;
 }
 
+/* Logo text - uses orange gradient visible on both themes */
 .intro-logo-text {
-     font-family: 'Fredoka', sans-serif;
-     font-weight: 900;
-     font-size: clamp(3.5rem, 12vw, 7rem);
-     letter-spacing: 0.1em;
-     background: linear-gradient(135deg, #FF6600 0%, #ff8833 50%, #cc5200 100%);
-     -webkit-background-clip: text;
-     background-clip: text;
-     -webkit-text-fill-color: transparent;
-     text-shadow: none;
-     display: block;
-     position: relative;
-}
-
-/* Dark theme override for logo */
-.dark-theme .intro-logo-text {
-     background: linear-gradient(135deg, #FF6600 0%, #ff8833 50%, #cc5200 100%);
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 900;
+    font-size: clamp(3.5rem, 12vw, 7rem);
+    letter-spacing: 0.1em;
+    background: linear-gradient(135deg, #FF6600 0%, #ff8833 50%, #cc5200 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+    display: block;
+    position: relative;
 }
 
 .intro-logo-glow {
-     position: absolute;
-     inset: -30%;
-     background: radial-gradient(circle, rgba(255, 102, 0, 0.3) 0%, transparent 70%);
-     filter: blur(60px);
-     animation: pulse-glow 3s ease-in-out infinite;
-     z-index: -1;
+    position: absolute;
+    inset: -30%;
+    background: radial-gradient(circle, rgba(255, 102, 0, 0.3) 0%, transparent 70%);
+    filter: blur(60px);
+    animation: pulse-glow 3s ease-in-out infinite;
+    z-index: -1;
 }
 
 /* Tagline */
@@ -179,15 +175,15 @@
     0% {
         opacity: 0;
         transform: translate(0, 0) scale(0);
-background: radial-gradient(circle, rgba(255, 102, 0, 0), transparent);
-     }
-     50% {
-         opacity: 0.5;
-     }
-     100% {
-         opacity: 0.3;
-         transform: translate(var(--tx, 0), var(--ty, 0)) scale(1);
-         background: radial-gradient(circle, rgba(255, 102, 0, 0.4), transparent);
+        background: radial-gradient(circle, rgba(255, 102, 0, 0), transparent);
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 0.3;
+        transform: translate(var(--tx, 0), var(--ty, 0)) scale(1);
+        background: radial-gradient(circle, rgba(255, 102, 0, 0.4), transparent);
     }
 }
 
@@ -223,22 +219,22 @@ background: radial-gradient(circle, rgba(255, 102, 0, 0), transparent);
 
 /* Light Theme Variant */
 .light-theme .intro-bg-gradient {
-    background: 
+    background:
         radial-gradient(ellipse at 50% 50%, #e8f0f8 0%, #d0e0f0 50%, #b8d4f0 100%);
 }
 
 .light-theme .intro-logo-text {
-     background: linear-gradient(135deg, #FF6600 0%, #ff8833 50%, #cc5200 100%);
-     -webkit-background-clip: text;
-     background-clip: text;
+    background: linear-gradient(135deg, #0066FF 0%, #0044cc 50%, #003399 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
 }
 
 .light-theme .intro-logo-glow {
-     background: radial-gradient(circle, rgba(255, 102, 0, 0.2) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(0, 102, 255, 0.2) 0%, transparent 70%);
 }
 
 .light-theme .intro-particle {
-     background: radial-gradient(circle, rgba(255, 102, 0, 0.5), transparent);
+    background: radial-gradient(circle, rgba(0, 102, 255, 0.5), transparent);
 }
 
 .light-theme .intro-tagline p {

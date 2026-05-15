@@ -1,0 +1,181 @@
+@import url('StoryCanvas.css');
+
+.cine-player {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+}
+
+.cine-player__preroll {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cine-player__preroll-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.cine-player__preroll-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.8) 100%);
+  z-index: 2;
+}
+
+.cine-player__preroll-content {
+  position: relative;
+  z-index: 3;
+  text-align: center;
+  padding: 24px;
+}
+
+.cine-player__title {
+  font-size: 48px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 16px;
+}
+
+.cine-player__desc {
+  font-size: 18px;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 32px;
+}
+
+.cine-player__play-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 32px;
+  background: linear-gradient(135deg, var(--primary), #7C6AF7);
+  border: none;
+  border-radius: 50px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.cine-player__play-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 30px rgba(124, 106, 247, 0.4);
+}
+
+.cine-player__play-icon {
+  font-size: 24px;
+}
+
+.cine-player__screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
+}
+
+.cine-player__video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cine-player__placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+}
+
+.cine-player__node-label {
+  font-size: 32px;
+  color: #fff;
+  font-weight: 600;
+}
+
+.cine-player__controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.8));
+  padding: 24px;
+}
+
+.cine-player__progress {
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.cine-player__progress-fill {
+  height: 100%;
+  background: var(--primary);
+  transition: width 0.1s linear;
+}
+
+.cine-player__ctrl-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.cine-player__ctrl-btn {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.cine-player__ctrl-btn:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.cine-player__node-name {
+  color: #fff;
+  font-size: 14px;
+}
+
+.cine-player__end {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  text-align: center;
+}
+
+.cine-player__end h2 {
+  font-size: 36px;
+  color: #fff;
+  margin-bottom: 16px;
+}
+
+.cine-player__end p {
+  font-size: 18px;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 32px;
+}

@@ -183,8 +183,26 @@ export function runMigrations() {
     db.prepare('CREATE INDEX IF NOT EXISTS idx_post_hashtags_hashtag ON post_hashtags(hashtag_id)').run();
     db.prepare('CREATE INDEX IF NOT EXISTS idx_direct_messages_sender ON direct_messages(sender_id)').run();
     db.prepare('CREATE INDEX IF NOT EXISTS idx_direct_messages_receiver ON direct_messages(receiver_id)').run();
-    db.prepare('CREATE INDEX IF NOT EXISTS idx_saved_posts_user ON saved_posts(user_id)').run();
-    db.prepare('CREATE INDEX IF NOT EXISTS idx_saved_posts_post ON saved_posts(post_id)').run();
+db.prepare('CREATE INDEX IF NOT EXISTS idx_saved_posts_user ON saved_posts(user_id)').run();
+     db.prepare('CREATE INDEX IF NOT EXISTS idx_saved_posts_post ON saved_posts(post_id)').run();
 
-    console.log('[DB] Database schema and performance indexes verified.');
+     // STORIES TABLE (for interactive story editor)
+     db.exec(`
+         CREATE TABLE IF NOT EXISTS stories (
+             id              INTEGER PRIMARY KEY AUTOINCREMENT,
+             title           TEXT    NOT NULL,
+             description     TEXT,
+             author_id       INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+             is_public       INTEGER NOT NULL DEFAULT 0,
+             config          TEXT,  -- JSON with nodes, edges, startNodeId
+             thumbnail_url   TEXT,
+             created_at      TEXT    NOT NULL DEFAULT (datetime('now')),
+             updated_at      TEXT    NOT NULL DEFAULT (datetime('now'))
+         )
+     `);
+
+     db.prepare('CREATE INDEX IF NOT EXISTS idx_stories_author ON stories(author_id)').run();
+     db.prepare('CREATE INDEX IF NOT EXISTS idx_stories_public ON stories(is_public)').run();
+
+     console.log('[DB] Database schema and performance indexes verified.');
 }

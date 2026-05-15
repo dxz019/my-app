@@ -15,6 +15,7 @@ import uploadRoutes from './routes/upload.js';
 import draftRoutes from './routes/drafts.js';
 import directMessageRoutes from './routes/directMessages.js';
 import savedPostRoutes from './routes/savedPosts.js';
+import storyRoutes from './routes/stories.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -58,6 +59,7 @@ app.use('/upload', uploadRoutes);
 app.use('/drafts', draftRoutes);
 app.use('/direct-messages', directMessageRoutes);
 app.use('/saved-posts', savedPostRoutes);
+app.use('/stories', storyRoutes);
 
 app.get('/health', (req, res) => {
     res.json({ status: 'healthy', timestamp: new Date().toISOString() });

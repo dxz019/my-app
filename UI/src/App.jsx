@@ -12,6 +12,9 @@ import ExplorePage from './pages/ExplorePage';
 import AuthModal from './components/AuthModal';
 import AntigravityCursor from './components/AntigravityCursor';
 import HomePage from './pages/HomePage';
+import DashboardPage from './pages/DashboardPage';
+import EditorPage from './pages/EditorPage';
+import PlayerPage from './pages/PlayerPage';
 
 function App() {
     const { token, currentUser, login, register, logout, loading: authLoading, refreshCurrentUser } = useAuth();
@@ -148,15 +151,35 @@ return (
                                 <Navigate to="/" replace />
                             )}
                         />
-                        <Route
-                            path="/register"
-                            element={!token ? (
-                                <RegisterPage onRegister={register} showToast={showToast} />
-                            ) : (
-                                <Navigate to="/" replace />
-                            )}
-                        />
-                    </Routes>
+<Route
+                             path="/register"
+                             element={!token ? (
+                                 <RegisterPage onRegister={register} showToast={showToast} />
+                             ) : (
+                                 <Navigate to="/" replace />
+                             )}
+                         />
+                         <Route
+                             path="/dashboard"
+                             element={token ? (
+                                 <DashboardPage token={token} showToast={showToast} />
+                             ) : (
+                                 <Navigate to="/login" replace />
+                             )}
+                         />
+                         <Route
+                             path="/editor/:id"
+                             element={token ? (
+                                 <EditorPage token={token} />
+                             ) : (
+                                 <Navigate to="/login" replace />
+                             )}
+                         />
+                         <Route
+                             path="/watch/:id"
+                             element={<PlayerPage token={token} />}
+                         />
+                     </Routes>
                 </div>
             </main>
 
