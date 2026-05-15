@@ -9,6 +9,7 @@ const RegisterPage = ({ onRegister, showToast }) => {
     const [authForm, setAuthForm] = useState({
         email: '',
         password: '',
+        confirmPassword: '',
         username: '',
         fullName: ''
     });
@@ -19,9 +20,9 @@ const RegisterPage = ({ onRegister, showToast }) => {
     };
 
     const validateForm = () => {
-        const { email, username, password, fullName } = authForm;
+        const { email, username, password, confirmPassword, fullName } = authForm;
 
-        if (!email || !username || !password || !fullName) {
+        if (!email || !username || !password || !confirmPassword || !fullName) {
             showToast('Please fill in all fields');
             return false;
         }
@@ -44,6 +45,11 @@ const RegisterPage = ({ onRegister, showToast }) => {
 
         if (password.length < 6) {
             showToast('Password must be at least 6 characters');
+            return false;
+        }
+
+        if (password !== confirmPassword) {
+            showToast('Passwords do not match');
             return false;
         }
 
@@ -93,24 +99,24 @@ const RegisterPage = ({ onRegister, showToast }) => {
 
     return (
         <div className="flex flex-column align-items-center justify-content-center min-h-screen py-8 px-3" style={{ position: 'relative' }}>
-            <div 
+            <div
                 className="w-full"
-                style={{ 
+                style={{
                     maxWidth: '600px',
-                    backgroundColor: 'var(--color-bg-card)', 
+                    backgroundColor: 'var(--color-bg-card)',
                     border: '1px solid var(--color-border)',
                     borderRadius: '28px',
                     padding: '2.5rem'
                 }}
             >
                 <div className="text-center mb-5">
-                    <div 
+                    <div
                         className="inline-flex align-items-center justify-content-center mb-3"
-                        style={{ 
-                            width: '64px', 
-                            height: '64px', 
-                            backgroundColor: 'var(--color-primary-light)', 
-                            borderRadius: '20px' 
+                        style={{
+                            width: '64px',
+                            height: '64px',
+                            backgroundColor: 'var(--color-primary-light)',
+                            borderRadius: '20px'
                         }}
                     >
                         <i className="pi pi-user-plus text-3xl" style={{ color: 'var(--color-primary)' }}></i>
@@ -129,7 +135,7 @@ const RegisterPage = ({ onRegister, showToast }) => {
                             required
                             placeholder="John Doe"
                             className="w-full"
-                            style={{ 
+                            style={{
                                 background: 'var(--color-input-bg)',
                                 border: '1px solid var(--color-border)',
                                 borderRadius: '12px',
@@ -150,7 +156,7 @@ const RegisterPage = ({ onRegister, showToast }) => {
                             required
                             placeholder="john@example.com"
                             className="w-full"
-                            style={{ 
+                            style={{
                                 background: 'var(--color-input-bg)',
                                 border: '1px solid var(--color-border)',
                                 borderRadius: '12px',
@@ -170,7 +176,7 @@ const RegisterPage = ({ onRegister, showToast }) => {
                             required
                             placeholder="johndoe123"
                             className="w-full"
-                            style={{ 
+                            style={{
                                 background: 'var(--color-input-bg)',
                                 border: '1px solid var(--color-border)',
                                 borderRadius: '12px',
@@ -181,48 +187,78 @@ const RegisterPage = ({ onRegister, showToast }) => {
                         />
                     </div>
 
-                    <div className="flex flex-column gap-2" style={{ width: '100%' }}>
+                    <div className="flex flex-column gap-2">
                         <label htmlFor="password" className="text-sm font-bold" style={{ color: 'var(--color-text-sub)' }}>Password</label>
-                        <div className="w-100" style={{ position: 'relative' }}>
-                            <Password
-                                id="password"
-                                value={authForm.password}
-                                onChange={(e) => handleInputChange('password', e.target.value)}
-                                required
-                                toggleMask
-                                feedback={false}
-                                placeholder="Enter your password"
-                                className="w-full"
-                                inputClassName="w-full"
-                                style={{ width: '100%' }}
-                                inputStyle={{
-                                    width: '100%',
-                                    background: 'var(--color-input-bg)',
-                                    border: '1px solid var(--color-border)',
-                                    borderRadius: '12px',
-                                    color: 'var(--color-input-text)',
-                                    padding: '14px 16px',
-                                    fontSize: '16px',
-                                    fontWeight: 500
-                                }}
-                                panelStyle={{
-                                    background: 'var(--color-bg-elevated)',
-                                    border: '1px solid var(--color-border)',
-                                    borderRadius: '12px',
-                                    color: 'var(--color-input-text)'
-                                }}
-                            />
-                        </div>
+                        <Password
+                            id="password"
+                            value={authForm.password}
+                            onChange={(e) => handleInputChange('password', e.target.value)}
+                            required
+                            toggleMask
+                            feedback={false}
+                            placeholder="Enter your password"
+                            className="w-full"
+                            inputClassName="w-full"
+                            style={{ width: '100%' }}
+                            inputStyle={{
+                                width: '100%',
+                                background: 'var(--color-input-bg)',
+                                border: '1px solid var(--color-border)',
+                                borderRadius: '12px',
+                                color: 'var(--color-input-text)',
+                                padding: '14px 16px',
+                                fontSize: '16px',
+                                fontWeight: 500
+                            }}
+                            panelStyle={{
+                                background: 'var(--color-bg-elevated)',
+                                border: '1px solid var(--color-border)',
+                                borderRadius: '12px',
+                                color: 'var(--color-input-text)'
+                            }}
+                        />
+                    </div>
+
+                    <div className="flex flex-column gap-2">
+                        <label htmlFor="confirmPassword" className="text-sm font-bold" style={{ color: 'var(--color-text-sub)' }}>Confirm Password</label>
+                        <Password
+                            id="confirmPassword"
+                            value={authForm.confirmPassword}
+                            onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                            required
+                            toggleMask
+                            feedback={false}
+                            placeholder="Confirm your password"
+                            className="w-full"
+                            inputClassName="w-full"
+                            style={{ width: '100%' }}
+                            inputStyle={{
+                                width: '100%',
+                                background: 'var(--color-input-bg)',
+                                border: '1px solid var(--color-border)',
+                                borderRadius: '12px',
+                                color: 'var(--color-input-text)',
+                                padding: '14px 16px',
+                                fontSize: '16px',
+                                fontWeight: 500
+                            }}
+                            panelStyle={{
+                                background: 'var(--color-bg-elevated)',
+                                border: '1px solid var(--color-border)',
+                                borderRadius: '12px',
+                                color: 'var(--color-input-text)'
+                            }}
+                        />
                     </div>
 
                     <Button
                         type="submit"
                         label={loading ? 'Creating account...' : 'Create Account'}
                         className="w-full p-3 text-lg font-bold border-round-xl mt-2"
-                        style={{ 
-                            backgroundColor: 'var(--color-primary)', 
-                            border: 'none', 
-                            color: '#ffffff', 
+                        style={{
+                            backgroundColor: 'var(--color-primary)',
+                            border: 'none',
+                            color: '#ffffff',
                             height: '52px',
                             fontSize: '16px',
                             fontWeight: 700,
@@ -235,12 +271,12 @@ const RegisterPage = ({ onRegister, showToast }) => {
 
                 <div className="mt-4 text-center">
                     <span style={{ color: 'var(--color-text-muted)' }}>Already have an account? </span>
-                    <Button 
-                        label="Sign In" 
-                        link 
-                        className="p-0 font-bold" 
+                    <Button
+                        label="Sign In"
+                        link
+                        className="p-0 font-bold"
                         style={{ color: 'var(--color-primary)' }}
-                        onClick={() => navigate('/login')} 
+                        onClick={() => navigate('/login')}
                     />
                 </div>
             </div>
