@@ -47,7 +47,7 @@
 .intro-particle {
     position: absolute;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(0, 102, 255, 0.8), transparent);
+    background: radial-gradient(circle, rgba(255, 102, 0, 0.8), transparent);
     opacity: 0;
     transform: translate(0, 0) scale(0);
     animation: particle-entrance 6s ease-out forwards, float-particle 8s ease-in-out infinite;
@@ -133,12 +133,12 @@
 }
 
 .intro-logo-glow {
-    position: absolute;
-    inset: -30%;
-    background: radial-gradient(circle, rgba(0, 102, 255, 0.3) 0%, transparent 70%);
-    filter: blur(60px);
-    animation: pulse-glow 3s ease-in-out infinite;
-    z-index: -1;
+     position: absolute;
+     inset: -30%;
+     background: radial-gradient(circle, rgba(255, 102, 0, 0.3) 0%, transparent 70%);
+     filter: blur(60px);
+     animation: pulse-glow 3s ease-in-out infinite;
+     z-index: -1;
 }
 
 /* Tagline */
@@ -179,15 +179,15 @@
     0% {
         opacity: 0;
         transform: translate(0, 0) scale(0);
-        background: radial-gradient(circle, rgba(0, 102, 255, 0), transparent);
-    }
-    50% {
-        opacity: 0.5;
-    }
-    100% {
-        opacity: 0.3;
-        transform: translate(var(--tx, 0), var(--ty, 0)) scale(1);
-        background: radial-gradient(circle, rgba(0, 102, 255, 0.4), transparent);
+background: radial-gradient(circle, rgba(255, 102, 0, 0), transparent);
+     }
+     50% {
+         opacity: 0.5;
+     }
+     100% {
+         opacity: 0.3;
+         transform: translate(var(--tx, 0), var(--ty, 0)) scale(1);
+         background: radial-gradient(circle, rgba(255, 102, 0, 0.4), transparent);
     }
 }
 
@@ -234,11 +234,11 @@
 }
 
 .light-theme .intro-logo-glow {
-    background: radial-gradient(circle, rgba(0, 102, 255, 0.2) 0%, transparent 70%);
+     background: radial-gradient(circle, rgba(255, 102, 0, 0.2) 0%, transparent 70%);
 }
 
 .light-theme .intro-particle {
-    background: radial-gradient(circle, rgba(0, 102, 255, 0.5), transparent);
+     background: radial-gradient(circle, rgba(255, 102, 0, 0.5), transparent);
 }
 
 .light-theme .intro-tagline p {
