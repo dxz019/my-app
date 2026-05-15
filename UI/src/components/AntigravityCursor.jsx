@@ -36,15 +36,15 @@ const AntigravityCursor = () => {
 
         // Initialize background roaming particles
         const initParticles = () => {
-            const count = Math.min(Math.floor((window.innerWidth * window.innerHeight) / 15000), 100);
+            const count = Math.min(Math.floor((window.innerWidth * window.innerHeight) / 10000), 120);
             const p = [];
             for (let i = 0; i < count; i++) {
                 p.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
-                    vx: (Math.random() - 0.5) * 0.5,
-                    vy: (Math.random() - 0.5) * 0.5,
-                    size: Math.random() * 2 + 1,
+                    vx: (Math.random() - 0.5) * 0.4,
+                    vy: (Math.random() - 0.5) * 0.4,
+                    size: Math.random() * 6 + 2, // Larger dots as requested
                     baseX: Math.random() * canvas.width,
                     baseY: Math.random() * canvas.height,
                 });
@@ -108,7 +108,7 @@ const AntigravityCursor = () => {
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
                 ctx.fillStyle = colors.dot;
-                ctx.globalAlpha = 0.3;
+                ctx.globalAlpha = 0.4; // Slightly more visible
                 ctx.fill();
                 ctx.globalAlpha = 1.0;
             });
@@ -173,15 +173,15 @@ const AntigravityCursor = () => {
         <canvas
             ref={canvasRef}
             className="antigravity-canvas"
-            style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                pointerEvents: 'none',
-                zIndex: 0
-            }}
+style={{
+                 position: 'fixed',
+                 top: 0,
+                 left: 0,
+                 width: '100%',
+                 height: '100%',
+                 pointerEvents: 'none',
+                 zIndex: 0
+             }}
         />
     );
 };

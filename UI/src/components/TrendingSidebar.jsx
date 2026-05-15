@@ -1,8 +1,14 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Avatar } from 'primereact/avatar';
+import { Button } from 'primereact/button';
+import { usersAPI, getPublicUrl } from '../services/api';
 
 const TrendingSidebar = () => {
     const navigate = useNavigate();
+    const [suggestedUsers, setSuggestedUsers] = useState([]);
+    const [loading, setLoading] = useState(false);
+
     const trends = [
         { id: 1, topic: 'Food & Cuisine', posts: '2.4K', sub: '#DeliciousThoughts' },
         { id: 2, topic: 'Artificial Intelligence', posts: '1.8K', sub: '#FutureAI' },
@@ -11,35 +17,84 @@ const TrendingSidebar = () => {
         { id: 5, topic: 'Design Trends', posts: '820', sub: '#Minimalist' }
     ];
 
-    return (
-        <div 
-            className="surface-elevated p-4 sticky border-round-xl"
-            style={{ maxWidth: '320px', marginTop: '100px' }}
-        >
-            <h2 className="text-heading font-bold mb-4 px-1" style={{ letterSpacing: '-0.5px' }}>
-                Trending Thoughts
-            </h2>
+    useEffect(() => {
+        const fetchSuggestions = async () => {
+            setLoading(true);
+            try {
+                const users = await usersAPI.getSuggestedUsers(4);
+                setSuggestedUsers(users);
+            } catch (error) {
+                console.error('Failed to fetch suggested users:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchSuggestions();
+    }, []);
 
-            <div className="flex flex-column gap-3">
-                {trends.map((trend) => (
-                    <div 
-                        key={trend.id}
-                        className="flex flex-column gap-2 p-3 border-round-lg cursor-pointer hover:bg-primary-light transition-all transition-duration-200 border-1 border-transparent hover:border-primary-light"
-                        onClick={() => {
-                             const tag = trend.sub.replace('#', '');
-                             window.location.href = `/explore?tag=${tag}`;
-                        }}
-                    >
-                        <div className="flex align-items-center justify-content-between">
-                            <span className="text-primary font-bold text-sm">{trend.sub}</span>
-                            <div className="w-6 h-6 rounded-full bg-primary-light flex align-items-center justify-content-center">
+    return (
+        <div className="flex flex-column gap-4 sticky" style={{ top: '100px', maxWidth: '350px' }}>
+            {/* Trending Section */}
+            <div className="surface-card p-4 shadow-3 border-round-2xl border-1 surface-border">
+                <h2 className="text-xl font-bold mb-4 px-2 text-color" style={{ letterSpacing: '-0.5px' }}>
+                    Trending Thoughts
+                </h2>
+
+                <div className="flex flex-column gap-2">
+                    {trends.map((trend) => (
+                        <div 
+                            key={trend.id}
+                            className="flex flex-column gap-1 p-3 border-round-xl cursor-pointer hover:bg-black-alpha-10 transition-all transition-duration-200"
+                            onClick={() => {
+                                 const tag = trend.sub.replace('#', '');
+                                 navigate(`/explore?tag=${tag}`);
+                            }}
+                        >
+                            <div className="flex align-items-center justify-content-between">
+                                <span className="text-sm font-semibold text-primary">{trend.sub}</span>
                                 <i className="pi pi-chart-line text-xs text-primary"></i>
                             </div>
+                            <span className="text-base font-bold text-color">{trend.topic}</span>
+                            <span className="text-xs text-color-secondary">{trend.posts} Thoughts today</span>
                         </div>
-                        <span className="font-bold text-color text-base hover:underline cursor-pointer">{trend.topic}</span>
-                        <span className="text-xs text-500">{trend.posts} discussions</span>
+                    ))}
+                </div>
+            </div>
+
+            {/* Who to Follow Section */}
+            <div className="surface-card p-4 shadow-3 border-round-2xl border-1 surface-border">
+                <h2 className="text-xl font-bold mb-4 px-2 text-color" style={{ letterSpacing: '-0.5px' }}>
+                    Who to follow
+                </h2>
+
+                <div className="flex flex-column gap-3">
+                    {loading ? (
+                        <div className="flex justify-content-center p-4">
+                            <i className="pi pi-spin pi-spinner text-primary"></i>
+                        </div>
+                    ) : (
+                        suggestedUsers.map((user) => (
+                            <div key={user.id} className="flex align-items-center justify-content-between gap-2 p-2 hover:bg-black-alpha-5 border-round-xl transition-all">
+                                <div className="flex align-items-center gap-3 cursor-pointer overflow-hidden" onClick={() => navigate(`/profile/${user.id}`)}>
+                                    <Avatar 
+                                        image={getPublicUrl(user.avatar_url)} 
+                                        label={!user.avatar_url ? user.username.charAt(0).toUpperCase() : null}
+                                        shape="circle" 
+                                        style={{ backgroundColor: 'var(--color-primary)', color: '#fff', flexShrink: 0 }}
+                                    />
+                                    <div className="flex flex-column overflow-hidden">
+                                        <span className="text-sm font-bold text-color white-space-nowrap overflow-hidden text-overflow-ellipsis">{user.full_name || user.username}</span>
+                                        <span className="text-xs text-color-secondary overflow-hidden text-overflow-ellipsis">@{user.username}</span>
+                                    </div>
+                                </div>
+                                <Button label="Follow" className="p-button-sm p-button-rounded p-button-outlined" />
+                            </div>
+                        ))
+                    )}
+                    <div className="px-2 mt-2">
+                        <span className="text-primary text-sm font-semibold cursor-pointer hover:underline">Show more</span>
                     </div>
-                ))}
+                </div>
             </div>
         </div>
     );

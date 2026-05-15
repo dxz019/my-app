@@ -240,8 +240,9 @@ async function seed() {
         VALUES (?, ?)
     `);
 
-    // Create users (around 20-25)
-    for (const [index, user] of usersToCreate.entries()) {
+    // Create exactly 15 users
+    const selectedUsersToCreate = usersToCreate.slice(0, 15);
+    for (const [index, user] of selectedUsersToCreate.entries()) {
         const [username, fullName, biography, topicSlug] = user;
         insertUser.run(
             `${username}@example.com`,
@@ -250,7 +251,6 @@ async function seed() {
             fullName,
             biography,
             avatarUrl(username),
-            // Make first few users admins for variety
             index < 3 ? 1 : 0
         );
     }
@@ -258,19 +258,13 @@ async function seed() {
     const users = db.prepare('SELECT id, username, full_name, avatar_url FROM users ORDER BY id ASC').all();
     const userByUsername = Object.fromEntries(users.map((user) => [user.username, user]));
 
-    // Create random follows - each user follows 5-10 random other users
+    // Create random follows
     for (const follower of users) {
-        // Each user follows between 5 and 10 other users
         const numToFollow = 5 + Math.floor(Math.random() * 6);
-        
-        // Get potential users to follow (excluding self)
         const potentialFollows = users.filter(u => u.id !== follower.id);
-        
-        // Shuffle and select random users to follow
         const shuffled = [...potentialFollows].sort(() => Math.random() - 0.5);
         const usersToFollow = shuffled.slice(0, Math.min(numToFollow, shuffled.length));
         
-        // Create the follow relationships
         for (const followed of usersToFollow) {
             insertFollow.run(follower.id, followed.id);
         }
@@ -278,18 +272,30 @@ async function seed() {
 
     const createdPosts = [];
 
-    // Each user creates 3-5 random posts based on their topic (to reach ~50 posts total)
-    for (const [index, [username, , , topicSlug]] of usersToCreate.entries()) {
+    // Each of the 15 users creates exactly 4 posts (total 60 posts)
+    for (const [index, [username, , , topicSlug]] of selectedUsersToCreate.entries()) {
         const user = userByUsername[username];
         const topic = topics.find((entry) => entry.slug === topicSlug);
         
-        // Each user creates between 3 and 5 posts
-        const postCount = 3 + Math.floor(Math.random() * 3);
-        
-        for (let postIndex = 0; postIndex < postCount; postIndex += 1) {
+        // Hashtag mapping for trending topics
+        const trendingHashtags = {
+            food: '#DeliciousThoughts',
+            ai: '#FutureAI',
+            travel: '#Wanderlust',
+            code: '#CodeLife',
+            design: '#Minimalist',
+            music: '#Beats',
+            fitness: '#Workout',
+            photography: '#Capture'
+        };
+        const hashtag = trendingHashtags[topicSlug] || `#${topicSlug}`;
+
+        for (let postIndex = 0; postIndex < 4; postIndex += 1) {
+            const content = buildPostContent(user, topic, postIndex) + `\n\nLoving this! ${hashtag}`;
+            
             const result = insertPost.run(
                 topic.titles[postIndex % topic.titles.length],
-                buildPostContent(user, topic, postIndex),
+                content,
                 postImageUrl(username, postIndex + 1),
                 user.id
             );
@@ -303,30 +309,31 @@ async function seed() {
         }
     }
 
-    // Each post gets 5-8 DIFFERENT commenters, each commenting 1-2 times
-    for (const post of createdPosts) {
-        // Random number of different commenters for this post (5-8)
-        const numCommenters = 5 + Math.floor(Math.random() * 4);
+    // Distribute exactly 40 comments across the 60 posts
+    let commentsCreated = 0;
+    while (commentsCreated < 40) {
+        // Random post
+        const post = createdPosts[Math.floor(Math.random() * createdPosts.length)];
         
-        // Select random commenters (excluding post author)
-        const availableCommenters = users.filter(u => u.id !== post.authorId);
-        const shuffledCommenters = [...availableCommenters].sort(() => Math.random() - 0.5);
-        const selectedCommenters = shuffledCommenters.slice(0, numCommenters);
+        // Random commenter (not the author)
+        const potentialCommenters = users.filter(u => u.id !== post.authorId);
+        const commenter = potentialCommenters[Math.floor(Math.random() * potentialCommenters.length)];
         
-        for (const commenter of selectedCommenters) {
-            // Each commenter leaves 1-2 comments on this post
-            const commentsPerUser = Math.random() > 0.5 ? 2 : 1;
+        // Check how many comments this user already has on this post
+        const existingCommentsCount = db.prepare('SELECT COUNT(*) as count FROM comments WHERE post_id = ? AND author_id = ?')
+            .get(post.id, commenter.id).count;
             
-            for (let c = 0; c < commentsPerUser; c++) {
-                const commentText = commentPhrases[Math.floor(Math.random() * commentPhrases.length)];
-                insertComment.run(post.id, commenter.id, commentText);
-            }
+        if (existingCommentsCount < 2) { // Max 2 comments per user per post
+            const commentText = commentPhrases[Math.floor(Math.random() * commentPhrases.length)];
+            insertComment.run(post.id, commenter.id, commentText);
+            commentsCreated++;
         }
     }
 
-    // Posts get 5-8 random likes
-    for (const [index, post] of createdPosts.entries()) {
-        const numLikes = 5 + Math.floor(Math.random() * 4);
+    // Distribute some random likes across posts
+    for (const post of createdPosts) {
+        // Not every post needs likes, let's say 0-4 likes per post
+        const numLikes = Math.floor(Math.random() * 5);
         const likers = new Set();
         while (likers.size < numLikes) {
             const randomUser = users[Math.floor(Math.random() * users.length)];
@@ -336,39 +343,6 @@ async function seed() {
         }
         for (const liker of likers) {
             insertLike.run(liker.id, post.id);
-        }
-    }
-
-    // Reciprocal likes: if A liked B's post, B likes another post from A
-    const allLikes = db.prepare('SELECT user_id, post_id FROM likes').all();
-    for (const like of allLikes) {
-        const likerId = like.user_id;
-        const postId = like.post_id;
-        const post = createdPosts.find(p => p.id === postId);
-        if (!post) continue;
-        
-        const authorPosts = createdPosts.filter(p => p.authorId === post.authorId && p.id !== postId);
-        if (authorPosts.length > 0) {
-            const randomPost = authorPosts[Math.floor(Math.random() * authorPosts.length)];
-            try {
-                insertLike.run(likerId, randomPost.id);
-            } catch (e) {
-                // ignore duplicate
-            }
-        }
-    }
-
-    // Comment likes: random users like random comments
-    const allComments = db.prepare('SELECT id FROM comments').all();
-    for (const comment of allComments) {
-        const numLikers = Math.floor(Math.random() * 3); // 0-2 likes per comment
-        const likers = new Set();
-        while (likers.size < numLikers) {
-            const randomUser = users[Math.floor(Math.random() * users.length)];
-            likers.add(randomUser);
-        }
-        for (const liker of likers) {
-            insertCommentLike.run(liker.id, comment.id);
         }
     }
 

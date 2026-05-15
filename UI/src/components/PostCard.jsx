@@ -223,11 +223,10 @@ const PostCard = ({
                     </div>
                 </div>
 
-                {showEmojiPicker && (
-                    <div 
-                        className="absolute bottom-100 left-0 surface-card p-2 flex gap-3 mb-2 border-round-xl shadow-6 z-5 border-1 border-white-alpha-10"
-                        style={{ backgroundColor: '#1a1a1a' }}
-                    >
+{showEmojiPicker && (
+                     <div
+                         className="absolute bottom-100 left-0 surface-card p-2 flex gap-3 mb-2 border-round-xl shadow-6 z-5 border-1 surface-border"
+                     >
                         {['🔥', '😂', '😮', '😢', '💯'].map(emoji => (
                             <span 
                                 key={emoji}
@@ -282,7 +281,7 @@ const PostCard = ({
                 }
             >
                 <div className="flex align-items-center gap-3">
-                    <i className="pi pi-exclamation-triangle text-4xl text-orange-500"></i>
+                    <i className="pi pi-exclamation-triangle text-4xl text-red-500"></i>
                     <p className="m-0 text-color-secondary">Are you sure you want to permanently remove this thought? This action cannot be undone.</p>
                 </div>
             </Dialog>

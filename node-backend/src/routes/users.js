@@ -253,4 +253,15 @@ router.put('/', authenticateToken, validate(profileUpdateSchema), async (req, re
     }
 });
 
+// Get suggested users
+router.get('/suggested/all', async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 5;
+        const users = await userService.getSuggestedUsers(null, limit);
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ detail: 'Internal server error getting suggestions' });
+    }
+});
+
 export default router;

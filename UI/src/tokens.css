@@ -82,51 +82,48 @@
    ============================================ */
 
 .dark-theme {
-       --color-primary: #FF6600;
-       --color-primary-hover: #ff7722;
-       --color-primary-light: rgba(255, 102, 0, 0.15);
-       --color-primary-dark: #cc5200;
-       
-        /* Page & Card: Black + Orange theme for dark mode */
-        --color-bg-page: #000000;
-        --color-bg-card: #0f0f0f;
-        --color-bg-header: #0f0f0f;
-        --color-bg-elevated: #151515;
-        --color-bg-hover: #1a1a1a;
-        
-        /* Text: White tones with orange accent */
-        --color-text-main: #FF6600;
-        --color-text-sub: #ff8833;
-        --color-text-muted: #cc5500;
-        
-        /* Borders: Orange tones */
-        --color-border: #333333;
-        --color-border-bright: #444444;
-        
-        /* Cursor effect colors - ORANGE in dark mode */
-        --cursor-dot: #FF6600;
-        --cursor-glow: rgba(255, 102, 0, 0.25);
-        --cursor-follower: rgba(255, 102, 0, 0.15);
-        --cursor-follower-dot: rgba(255, 102, 0, 0.6);
-        --cursor-line: rgba(255, 102, 0, 0.4);
-       
-       /* Intro logo colors - ORANGE in dark mode */
-       --intro-logo-primary: #FF6600;
-       --intro-logo-glow: rgba(255, 102, 0, 0.2);
-       --intro-particle-color: rgba(255, 102, 0, 0.8);
-       
-       /* Input variables - black bg, orange border */
-       --color-input-bg: #141414;
-       --color-input-border: #333333;
-       --color-input-focus-bg: #1a1a1a;
-       --color-input-text: #ffffff;
-       --color-input-placeholder: rgba(255, 255, 255, 0.5);
-      --color-input-focus-bg: #111111;
-      --color-input-text: #ffffff;
-      --color-input-placeholder: rgba(255, 255, 255, 0.5);
+        --color-primary: #6ec5ff;
+        --color-primary-hover: #9fd3ff;
+        --color-primary-light: rgba(110, 197, 255, 0.15);
+        --color-primary-dark: #0066FF;
 
-      /* Shadows */
-      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
-      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.6);
-      --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.7);
-    }
+         /* Page & Card: Dark blue theme for dark mode */
+         --color-bg-page: #0a0a12;
+         --color-bg-card: #0f0f18;
+         --color-bg-header: #0f0f18;
+         --color-bg-elevated: #151520;
+         --color-bg-hover: #1a1a2a;
+
+         /* Text: White tones with blue accent */
+         --color-text-main: #f0f0f8;
+         --color-text-sub: #c0c0e0;
+         --color-text-muted: #707090;
+
+         /* Borders: Dark blue tones */
+         --color-border: #202040;
+         --color-border-bright: #303060;
+
+         /* Cursor effect colors - BLUE in dark mode */
+         --cursor-dot: #6ec5ff;
+         --cursor-glow: rgba(110, 197, 255, 0.25);
+         --cursor-follower: rgba(110, 197, 255, 0.15);
+         --cursor-follower-dot: rgba(110, 197, 255, 0.6);
+         --cursor-line: rgba(110, 197, 255, 0.4);
+
+        /* Intro logo colors - BLUE in dark mode */
+        --intro-logo-primary: #6ec5ff;
+        --intro-logo-glow: rgba(110, 197, 255, 0.2);
+        --intro-particle-color: rgba(110, 197, 255, 0.8);
+
+        /* Input variables - dark bg, blue border */
+        --color-input-bg: #14141d;
+        --color-input-border: #303060;
+        --color-input-focus-bg: #1a1a2a;
+        --color-input-text: #ffffff;
+        --color-input-placeholder: rgba(255, 255, 255, 0.5);
+
+       /* Shadows */
+       --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+       --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.6);
+       --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.7);
+     }

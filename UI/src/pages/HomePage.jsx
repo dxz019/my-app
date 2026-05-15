@@ -92,7 +92,7 @@ const HomePage = ({
                                 <Button 
                                     icon="pi pi-plus" 
                                     className="p-button-rounded p-button-primary shadow-2"
-                                    style={{ boxShadow: '0 4px 12px rgba(255, 102, 0, 0.3)' }}
+                                    style={{ boxShadow: '0 4px 12px rgba(110, 197, 255, 0.3)' }}
                                     onClick={(e) => { e.stopPropagation(); openCreatePost(); }}
                                 />
                             </div>

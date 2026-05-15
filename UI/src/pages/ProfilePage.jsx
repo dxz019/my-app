@@ -5,7 +5,6 @@ import { Avatar } from 'primereact/avatar';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Dialog } from 'primereact/dialog';
-import { Dropdown } from 'primereact/dropdown';
 import { usersAPI, uploadAPI, getPublicUrl, getErrorMessage } from '../services/api';
 import useComments from '../hooks/useComments';
 import PostCard from '../components/PostCard';
@@ -464,12 +463,6 @@ const ProfilePage = ({
                 closeOnEscape
                 dismissableMask
                 contentStyle={{ maxHeight: '60vh', overflow: 'auto' }}
-                footer={
-                    <div className="flex gap-3 justify-content-end">
-                        <Button label="Cancel" icon="pi pi-times" className="p-button-text" onClick={() => setShowAvatarBuilder(false)} />
-                        <Button label="Save Avatar" icon="pi pi-check" className="p-button-primary" onClick={handleSaveProfile} />
-                    </div>
-                }
             >
                 <AvatarBuilder
                     onSave={(avatarUrl) => {

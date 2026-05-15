@@ -18,7 +18,7 @@ export const usePosts = (token, currentUser) => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [token]);
 
     // Fetch posts on mount
     useEffect(() => {

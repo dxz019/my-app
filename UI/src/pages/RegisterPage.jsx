@@ -92,7 +92,7 @@ const RegisterPage = ({ onRegister, showToast }) => {
     };
 
     return (
-        <div className="flex flex-column align-items-center justify-content-center min-h-screen py-8 px-3" style={{ backgroundColor: 'var(--color-bg-page)' }}>
+        <div className="flex flex-column align-items-center justify-content-center min-h-screen py-8 px-3" style={{ position: 'relative' }}>
             <div 
                 className="w-full"
                 style={{ 

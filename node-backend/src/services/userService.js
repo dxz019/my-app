@@ -254,5 +254,18 @@ export const userService = {
         ).get(userId);
         
         return count.count;
+    },
+
+    /**
+     * Get suggested users to follow (random)
+     */
+    async getSuggestedUsers(excludeUserId, limit = 5) {
+        const rows = db.prepare(`
+            SELECT * FROM users 
+            WHERE id != ? 
+            ORDER BY RANDOM() 
+            LIMIT ?
+        `).all(excludeUserId || -1, limit);
+        return rows.map(formatUser);
     }
 };

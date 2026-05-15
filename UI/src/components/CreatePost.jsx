@@ -4,7 +4,7 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
 import { Avatar } from 'primereact/avatar';
 import EmojiPicker from 'emoji-picker-react';
-import { uploadAPI } from '../services/api';
+import { uploadAPI, getPublicUrl } from '../services/api';
 
 const CreatePost = forwardRef(({ currentUser, onCreatePost, showToast }, ref) => {
     const [visible, setVisible] = useState(false);
@@ -91,14 +91,14 @@ const CreatePost = forwardRef(({ currentUser, onCreatePost, showToast }, ref) =>
             dismissableMask
             header={
                 <div className="flex align-items-center gap-3">
-                    <Avatar
-                        image={currentUser?.avatar_url}
-                        label={!currentUser?.avatar_url ? (currentUser?.username?.charAt(0).toUpperCase() || 'U') : null}
-                        shape="circle"
-                        size="large"
-                        className="shadow-2"
-                        style={{ backgroundColor: 'var(--color-primary)', color: '#fff' }}
-                    />
+<Avatar
+                         image={getPublicUrl(currentUser?.avatar_url)}
+                         label={!currentUser?.avatar_url ? (currentUser?.username?.charAt(0).toUpperCase() || 'U') : null}
+                         shape="circle"
+                         size="large"
+                         className="shadow-2"
+                         style={{ backgroundColor: 'var(--color-primary)', color: '#fff' }}
+                     />
                     <div>
                         <div className="font-bold text-lg text-color">
                             {currentUser?.full_name || currentUser?.username || 'You'}
@@ -212,15 +212,15 @@ const CreatePost = forwardRef(({ currentUser, onCreatePost, showToast }, ref) =>
                 {/* Emoji Picker - positioned below toolbar */}
                 {showEmojiPicker && (
                     <div className="relative z-5 border-round-xl overflow-hidden border-1 border-white-alpha-10 shadow-8">
-                        <EmojiPicker
-                            onEmojiClick={handleEmojiClick}
-                            width="100%"
-                            height={350}
-                            theme="dark"
-                            searchPlaceholder="Search emojis..."
-                            skinTonesDisabled
-                            previewConfig={{ showPreview: false }}
-                        />
+<EmojiPicker
+                             onEmojiClick={handleEmojiClick}
+                             width="100%"
+                             height={350}
+                             theme="auto"
+                             searchPlaceholder="Search emojis..."
+                             skinTonesDisabled
+                             previewConfig={{ showPreview: false }}
+                         />
                     </div>
                 )}
             </div>

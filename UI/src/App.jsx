@@ -60,23 +60,23 @@ function App() {
         );
     }
 
-    return (
-        <div className="flex flex-column min-h-screen surface-ground" style={{ position: 'relative', zIndex: 1 }}>
-             {!isAuthPage && (
-                 <Header
-                     currentUser={currentUser}
-                     onLogout={logout}
-                     showToast={showToast}
-                     token={token}
-                     fetchPosts={fetchPosts}
-                     theme={theme}
-                     onToggleTheme={toggleTheme}
-                 />
-             )}
- 
-             {!isAuthPage && <AntigravityCursor />}
- 
-              <main className={`flex-grow-1 w-full flex flex-column align-items-center ${!isAuthPage ? "py-5 px-3" : ""}`} style={!isAuthPage ? { paddingTop: '110px', position: 'relative', zIndex: 1 } : { position: 'relative', zIndex: 1 }}>
+return (
+         <div className="flex flex-column min-h-screen surface-ground" style={{ position: 'relative' }}>
+              {!isAuthPage && (
+                  <Header
+                      currentUser={currentUser}
+                      onLogout={logout}
+                      showToast={showToast}
+                      token={token}
+                      fetchPosts={fetchPosts}
+                      theme={theme}
+                      onToggleTheme={toggleTheme}
+                  />
+              )}
+
+              <AntigravityCursor />
+
+               <main className={`flex-grow-1 w-full flex flex-column align-items-center ${!isAuthPage ? "py-5 px-3" : ""}`} style={!isAuthPage ? { paddingTop: '110px', position: 'relative', zIndex: 1 } : { position: 'relative', zIndex: 1 }}>
                 <div className={`w-full ${!isAuthPage ? "max-w-screen-xl flex flex-column gap-4" : ""}`}>
                     <Routes>
                         <Route path="/" element={<LandingPage />} />

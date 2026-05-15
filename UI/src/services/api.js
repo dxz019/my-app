@@ -78,6 +78,13 @@ export const usersAPI = {
         const response = await api.get(`/users/${userId}/activity`);
         return response.data;
     },
+
+    getSuggestedUsers: async (limit = 5) => {
+        const response = await api.get('/users/suggested/all', {
+            params: { limit }
+        });
+        return response.data;
+    },
 };
 
 export const postsAPI = {
