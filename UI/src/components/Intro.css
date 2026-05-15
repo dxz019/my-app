@@ -114,17 +114,22 @@
 }
 
 .intro-logo-text {
-    font-family: 'Fredoka', sans-serif;
-    font-weight: 900;
-    font-size: clamp(3.5rem, 12vw, 7rem);
-    letter-spacing: 0.1em;
-    background: linear-gradient(135deg, #6ec5ff 0%, #0066FF 50%, #0044cc 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: none;
-    display: block;
-    position: relative;
+     font-family: 'Fredoka', sans-serif;
+     font-weight: 900;
+     font-size: clamp(3.5rem, 12vw, 7rem);
+     letter-spacing: 0.1em;
+     background: linear-gradient(135deg, #FF6600 0%, #ff8833 50%, #cc5200 100%);
+     -webkit-background-clip: text;
+     background-clip: text;
+     -webkit-text-fill-color: transparent;
+     text-shadow: none;
+     display: block;
+     position: relative;
+}
+
+/* Dark theme override for logo */
+.dark-theme .intro-logo-text {
+     background: linear-gradient(135deg, #FF6600 0%, #ff8833 50%, #cc5200 100%);
 }
 
 .intro-logo-glow {
@@ -223,10 +228,9 @@
 }
 
 .light-theme .intro-logo-text {
-    background: linear-gradient(135deg, #0066FF 0%, #0044cc 50%, #003399 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+     background: linear-gradient(135deg, #FF6600 0%, #ff8833 50%, #cc5200 100%);
+     -webkit-background-clip: text;
+     background-clip: text;
 }
 
 .light-theme .intro-logo-glow {
