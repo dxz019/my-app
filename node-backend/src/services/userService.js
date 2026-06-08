@@ -162,35 +162,52 @@ export const userService = {
      * Follow a user
      */
     async followUser(followerId, followedId) {
-        // Prevent self-following
         if (followerId === followedId) {
             const error = new Error('Cannot follow yourself');
             error.status = 400;
             throw error;
         }
 
-        // Check if already following
         const existingFollow = db.prepare(
             'SELECT 1 FROM follows WHERE follower_id = ? AND followed_id = ?'
         ).get(followerId, followedId);
 
         if (existingFollow) {
-            return; // Already following
+            return true;
         }
 
-        // Create the follow relationship
-        db.prepare(
+        const followResult = db.prepare(
             'INSERT INTO follows (follower_id, followed_id) VALUES (?, ?)'
         ).run(followerId, followedId);
+
+        const followersUpdate = db.prepare(
+            'UPDATE users SET followers_count = COALESCE(followers_count, 0) + 1 WHERE id = ?'
+        ).run(followedId);
+
+        const followingUpdate = db.prepare(
+            'UPDATE users SET following_count = COALESCE(following_count, 0) + 1 WHERE id = ?'
+        ).run(followerId);
+
+        return followResult.changes > 0;
     },
 
     /**
      * Unfollow a user
      */
     async unfollowUser(followerId, followedId) {
-        db.prepare(
+        const result1 = db.prepare(
             'DELETE FROM follows WHERE follower_id = ? AND followed_id = ?'
         ).run(followerId, followedId);
+
+        db.prepare(
+            'UPDATE users SET followers_count = MAX(0, COALESCE(followers_count, 0) - 1) WHERE id = ?'
+        ).run(followedId);
+
+        db.prepare(
+            'UPDATE users SET following_count = MAX(0, COALESCE(following_count, 0) - 1) WHERE id = ?'
+        ).run(followerId);
+
+        return result1.changes > 0;
     },
 
     /**

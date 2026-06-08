@@ -141,7 +141,8 @@ router.post('/:id/follow', authenticateToken, async (req, res) => {
         const followedId = parseInt(req.params.id);
         
         await userService.followUser(userId, followedId);
-        res.json({ message: 'User followed successfully' });
+        const updatedUser = await userService.getUserById(followedId);
+        res.json({ message: 'User followed successfully', user: updatedUser });
     } catch (error) {
         console.error('Follow error:', error);
         res.status(500).json({ detail: 'Internal server error during follow' });
@@ -155,7 +156,8 @@ router.post('/:id/unfollow', authenticateToken, async (req, res) => {
         const followedId = parseInt(req.params.id);
         
         await userService.unfollowUser(userId, followedId);
-        res.json({ message: 'User unfollowed successfully' });
+        const updatedUser = await userService.getUserById(followedId);
+        res.json({ message: 'User unfollowed successfully', user: updatedUser });
     } catch (error) {
         console.error('Unfollow error:', error);
         res.status(500).json({ detail: 'Internal server error during unfollow' });
@@ -163,7 +165,7 @@ router.post('/:id/unfollow', authenticateToken, async (req, res) => {
 });
 
 // Check if user is following another user
-router.get('/:id/following', authenticateToken, async (req, res) => {
+router.get('/:id/follow-status', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.id;
         const followedId = parseInt(req.params.id);

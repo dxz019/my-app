@@ -9,8 +9,6 @@ A full-stack social media web application with dual backend implementations (Nod
 - **Backend**: Choose either Node.js/Express OR Python/FastAPI
 - **Database**: Shared SQLite database with normalized schema
 
-![Architecture Diagram](https://via.placeholder.com/800x400/0066FF/ffffff?text=React+%2B+Node.js/FastAPI+%2B+SQLite)
-
 **Key Features:**
 - User authentication (JWT)
 - Posts, comments, likes system
@@ -18,12 +16,13 @@ A full-stack social media web application with dual backend implementations (Nod
 - Search & explore functionality
 - Responsive design with dark/light theme
 - Image upload support
+- **Follow/Unfollow system with real-time count updates**
 
 ## 📁 Project Structure
 
 ```
 MY-APP/
-├── UI/                 # React Frontend
+├── UI/                 # React Frontend (port 5173)
 ├── node-backend/       # Node.js/Express API (port 3001)
 ├── SQL/               # Python/FastAPI API (port 8000)
 └── shared SQLite DB   # blog.db (in respective backend dirs)
@@ -77,19 +76,6 @@ export const API_BASE_URL = 'http://localhost:3001'; // Node.js
 // export const API_BASE_URL = 'http://localhost:8000'; // Python
 ```
 
-## 🧪 Testing
-
-```bash
-# Frontend
-cd UI && npm run test
-
-# Node.js Backend
-cd node-backend && npm test
-
-# Python Backend
-cd SQL && pytest
-```
-
 ## 📚 Documentation
 
 - [ARCHITECTURE.md](ARCHITECTURE.md) - Detailed system architecture
@@ -110,3 +96,41 @@ cd SQL && pytest
 2. The dual backend implementation serves educational purposes
 3. For production: Consider PostgreSQL for better concurrency
 4. Environment variables required - see `.env.example` files
+
+## 📋 Recent Changes (feature/follow-button-fix)
+
+### Follow/Unfollow System Fix
+- **TrendingSidebar.jsx**: Added `handleFollow()` function with optimistic UI updates and follower count refresh
+- **ProfilePage.jsx**: Added `handleFollowToggle()` with immediate count updates after follow/unfollow actions
+- **users.js**: Follow/unfollow endpoints now return updated user object with fresh `followers_count`/`following_count`
+- **userService.js**: Added inline comments explaining follow/unfollow database operations
+- **Database schema**: Added `followers_count` and `following_count` columns to users table
+- **seed.js**: Updated to initialize count columns correctly
+
+### Git Commands for Pushing (excluding SQL folder)
+```bash
+# Create and switch to feature branch
+git checkout -b feature/follow-button-fix
+
+# Add all files except SQL/database
+git add UI/ node-backend/ .gitignore README.md
+
+# Commit changes
+git commit -m "Fix follow/unfollow functionality and count display
+
+- Add onClick handler to Follow button in TrendingSidebar
+- Update follow/unfollow endpoints to return updated user data
+- Add followers_count/following_count to database schema
+- Implement optimistic UI updates for follow actions"
+
+# Push to remote
+git push -u origin feature/follow-button-fix
+```
+
+## 🎨 UI Screenshots
+
+*Note: Add screenshots in `docs/screenshots/` directory*
+- `login-page.png` - Authentication screen
+- `home-feed.png` - Main feed with trending sidebar
+- `profile-page.png` - User profile with follow button and counts
+- `explore-page.png` - Search and hashtag exploration

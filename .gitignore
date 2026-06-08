@@ -86,3 +86,5 @@ temp/
 .secrets/
 credentials.json
 secrets.json
+*sql
+database/

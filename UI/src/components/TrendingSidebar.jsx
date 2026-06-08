@@ -8,6 +8,8 @@ const TrendingSidebar = () => {
     const navigate = useNavigate();
     const [suggestedUsers, setSuggestedUsers] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [followLoading, setFollowLoading] = useState({});
+    const [token] = useState(localStorage.getItem('token'));
 
     const trends = [
         { id: 1, topic: 'Food & Cuisine', posts: '2.4K', sub: '#DeliciousThoughts' },
@@ -31,6 +33,41 @@ const TrendingSidebar = () => {
         };
         fetchSuggestions();
     }, []);
+
+    const handleFollow = async (e, userId) => {
+        e.stopPropagation();
+        if (!token) {
+            navigate('/login');
+            return;
+        }
+        setFollowLoading(prev => ({ ...prev, [userId]: true }));
+        try {
+            const user = suggestedUsers.find(u => u.id === userId);
+            if (user?.isFollowing) {
+                // Unfollow
+                const result = await usersAPI.unfollow(userId);
+                setSuggestedUsers(prev => prev.map(u => 
+                    u.id === userId 
+                        ? { ...u, isFollowing: false, followers_count: result?.user?.followers_count ?? u.followers_count } 
+                        : u
+                ));
+            } else {
+                // Follow
+                const result = await usersAPI.toggleFollow(userId);
+                setSuggestedUsers(prev => prev.map(u => 
+                    u.id === userId 
+                        ? { ...u, isFollowing: true, followers_count: result?.user?.followers_count ?? u.followers_count } 
+                        : u
+                ));
+            }
+            // Dispatch event to refresh current user's following count in header
+            window.dispatchEvent(new CustomEvent('user-followed'));
+        } catch (error) {
+            console.error('Follow error:', error);
+        } finally {
+            setFollowLoading(prev => ({ ...prev, [userId]: false }));
+        }
+    };
 
     return (
         <div className="flex flex-column gap-4 sticky" style={{ top: '100px', maxWidth: '350px' }}>
@@ -87,7 +124,12 @@ const TrendingSidebar = () => {
                                         <span className="text-xs text-color-secondary overflow-hidden text-overflow-ellipsis">@{user.username}</span>
                                     </div>
                                 </div>
-                                <Button label="Follow" className="p-button-sm p-button-rounded p-button-outlined" />
+                                <Button 
+                                    label={user.isFollowing ? "Following" : "Follow"} 
+                                    className={`p-button-sm p-button-rounded ${user.isFollowing ? 'p-button-success' : 'p-button-outlined'}`}
+                                    loading={followLoading[user.id]}
+                                    onClick={(e) => handleFollow(e, user.id)}
+                                />
                             </div>
                         ))
                     )}

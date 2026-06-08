@@ -145,35 +145,35 @@ describe('Users API', () => {
          expect(res.body.message).toBe('User unfollowed successfully');
      });
 
-     it('checks if user is following another user', async () => {
-         // Create a second user to check follow status
-         const secondUser = db.prepare(`
-             INSERT INTO users (email, username, password, full_name)
-             VALUES (?, ?, ?, ?)
-         `).run('checkfollow@example.com', 'checkfollow_user', 'hashedpassword', 'Check Follow User');
-         const checkUserId = Number(secondUser.lastInsertRowid);
+it('checks if user is following another user', async () => {
+          // Create a second user to check follow status
+          const secondUser = db.prepare(`
+              INSERT INTO users (email, username, password, full_name)
+              VALUES (?, ?, ?, ?)
+          `).run('checkfollow@example.com', 'checkfollow_user', 'hashedpassword', 'Check Follow User');
+          const checkUserId = Number(secondUser.lastInsertRowid);
 
-         // Initially not following
-         let res = await request(app)
-             .get(`/users/${checkUserId}/following`)
-             .set('Authorization', `Bearer ${token}`);
-         
-         expect(res.statusCode).toBe(200);
-         expect(res.body.isFollowing).toBe(false);
+          // Initially not following
+          let res = await request(app)
+              .get(`/users/${checkUserId}/follow-status`)
+              .set('Authorization', `Bearer ${token}`);
+          
+          expect(res.statusCode).toBe(200);
+          expect(res.body.isFollowing).toBe(false);
 
-         // Follow the user
-         await request(app)
-             .post(`/users/${checkUserId}/follow`)
-             .set('Authorization', `Bearer ${token}`);
+          // Follow the user
+          await request(app)
+              .post(`/users/${checkUserId}/follow`)
+              .set('Authorization', `Bearer ${token}`);
 
-         // Now checking should return true
-         res = await request(app)
-             .get(`/users/${checkUserId}/following`)
-             .set('Authorization', `Bearer ${token}`);
-         
-         expect(res.statusCode).toBe(200);
-         expect(res.body.isFollowing).toBe(true);
-     });
+          // Now checking should return true
+          res = await request(app)
+              .get(`/users/${checkUserId}/follow-status`)
+              .set('Authorization', `Bearer ${token}`);
+          
+          expect(res.statusCode).toBe(200);
+          expect(res.body.isFollowing).toBe(true);
+      });
 
      it('gets followers of a user', async () => {
          // Create followers

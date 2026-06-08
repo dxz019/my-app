@@ -138,6 +138,57 @@ const topics = [
             'Great photography is possible at any budget level.',
             'Training your eye to see potential shots takes practice and patience.'
         ]
+    },
+    {
+        slug: 'books',
+        titles: [
+            'Recent Reads That Changed My Perspective',
+            'Book Recommendations for Every Mood',
+            'The Art of Slow Reading',
+            'Indie Authors You Should Know',
+            'How Books Shape Our Thinking'
+        ],
+        thoughts: [
+            'A great book can completely shift how you see the world.',
+            'I have been on a non-fiction kick lately and it is transforming my daily habits.',
+            'There is something magical about getting lost in a well-crafted story.',
+            'Independent authors are creating some of the most innovative fiction today.',
+            'The books we read become part of who we are.'
+        ]
+    },
+    {
+        slug: 'art',
+        titles: [
+            'Digital Art Workflow Tips',
+            'Color Theory in Practice',
+            'Finding Your Artistic Voice',
+            'Tools Every Digital Artist Needs',
+            'Building a Creative Routine'
+        ],
+        thoughts: [
+            'Digital art has opened up so many possibilities for creative expression.',
+            'Understanding color relationships is fundamental to compelling artwork.',
+            'Your unique artistic voice is worth developing and sharing.',
+            'The right tools can enhance your creativity, not replace it.',
+            'Consistency in practice leads to breakthrough moments.'
+        ]
+    },
+    {
+        slug: 'lifestyle',
+        titles: [
+            'Simple Habits for Better Days',
+            'Creating Calm in a Busy World',
+            'Minimalism and Mental Clarity',
+            'Morning Routines That Work',
+            'Finding Balance in Daily Life'
+        ],
+        thoughts: [
+            'Small daily habits compound into significant life changes.',
+            'Creating pockets of calm helps me stay grounded throughout the day.',
+            'Letting go of excess has brought more peace into my life.',
+            'A thoughtful morning routine sets the tone for the entire day.',
+            'Balance is not about perfection, it is about intention.'
+        ]
     }
 ];
 
@@ -167,7 +218,16 @@ const usersToCreate = [
     ['lens_leo', 'Leo Kim', 'Photographer capturing urban landscapes and street scenes.', 'photography'],
     ['zara_zen', 'Zara Gupta', 'Yoga instructor and mindfulness coach.', 'fitness'],
     ['octavia_beats', 'Octavia Davis', 'DJ and electronic music artist experimenting with new sounds.', 'music'],
-    ['sol_lens', 'Solomon Adeyemi', 'Travel photographer documenting cultures around the world.', 'photography']
+    ['sol_lens', 'Solomon Adeyemi', 'Travel photographer documenting cultures around the world.', 'photography'],
+    ['maya_reads', 'Maya Johnson', 'Book reviewer and literary enthusiast.', 'books'],
+    ['derek_codes', 'Derek Wu', 'Full-stack developer building SaaS products.', 'code'],
+    ['lily_paints', 'Lily Thompson', 'Digital artist and illustrator.', 'art'],
+    ['carlos_drums', 'Carlos Mendez', 'Session drummer and music producer.', 'music'],
+    ['anna_hikes', 'Anna Petrova', 'Mountaineer and outdoor adventure blogger.', 'travel'],
+    ['brian_bakes', 'Brian Smith', 'Pastry chef and baking instructor.', 'food'],
+    ['yuki_writes', 'Yuki Tanaka', 'Technical writer and documentation specialist.', 'code'],
+    ['nora_grows', 'Nora Williams', 'Urban gardener and sustainability advocate.', 'lifestyle'],
+    ['victor_solves', 'Victor Chen', 'Data scientist solving real-world problems.', 'ai']
 ];
 
 const commentPhrases = [
@@ -180,7 +240,23 @@ const commentPhrases = [
     'I read every word of this. Please write more like this.',
     'This is practical advice I can actually use tomorrow.',
     'Great breakdown. Would love to hear more about your setup.',
-    'The world needs more posts like this. Thank you.'
+    'The world needs more posts like this. Thank you.',
+    'This resonates with me on so many levels. Well written!',
+    'I never thought about it this way. Mind officially blown.',
+    'Your insights are always so valuable. Keep them coming!',
+    'This is exactly what I needed to read today. Thank you!',
+    'Fantastic post! I learned something new.',
+    'This is going to help me a lot. Much appreciated!',
+    'I completely agree with your take on this.',
+    'This is such a thoughtful approach. Love it!',
+    'Thanks for taking the time to share this.',
+    'This is really helpful. Just what I was looking for!',
+    'I can relate to this so much. Great post!',
+    'This is beautifully written. Well done!',
+    'Your perspective is refreshing. Thanks for sharing!',
+    'This is spot on. Exactly what I was thinking.',
+    'Love this! Very insightful and well-articulated.',
+    'This made my day. Thank you for posting this!'
 ];
 
 function avatarUrl(username) {
@@ -205,8 +281,9 @@ async function seed() {
     db.exec('DELETE FROM likes');
     db.exec('DELETE FROM comments');
     db.exec('DELETE FROM posts');
+    db.exec('DELETE FROM follows');
     db.exec('DELETE FROM users');
-    db.exec("DELETE FROM sqlite_sequence WHERE name IN ('users', 'posts', 'comments', 'likes', 'comment_likes')");
+    db.exec("DELETE FROM sqlite_sequence WHERE name IN ('users', 'posts', 'comments', 'likes', 'comment_likes', 'follows')");
 
     const passwordHash = await bcrypt.hash('password123', 10);
 
@@ -240,8 +317,8 @@ async function seed() {
         VALUES (?, ?)
     `);
 
-    // Create exactly 15 users
-    const selectedUsersToCreate = usersToCreate.slice(0, 15);
+    // Create exactly 25 users (increased from 15)
+    const selectedUsersToCreate = usersToCreate.slice(0, 25);
     for (const [index, user] of selectedUsersToCreate.entries()) {
         const [username, fullName, biography, topicSlug] = user;
         insertUser.run(
@@ -255,7 +332,7 @@ async function seed() {
         );
     }
 
-    const users = db.prepare('SELECT id, username, full_name, avatar_url FROM users ORDER BY id ASC').all();
+const users = db.prepare('SELECT id, username, full_name, avatar_url FROM users ORDER BY id ASC').all();
     const userByUsername = Object.fromEntries(users.map((user) => [user.username, user]));
 
     // Create random follows
@@ -264,19 +341,27 @@ async function seed() {
         const potentialFollows = users.filter(u => u.id !== follower.id);
         const shuffled = [...potentialFollows].sort(() => Math.random() - 0.5);
         const usersToFollow = shuffled.slice(0, Math.min(numToFollow, shuffled.length));
-        
+
         for (const followed of usersToFollow) {
             insertFollow.run(follower.id, followed.id);
         }
     }
 
+    // Update follower/following counts after all follows are created
+    const updateUserCounts = db.prepare(`
+        UPDATE users 
+        SET followers_count = (SELECT COUNT(*) FROM follows WHERE followed_id = users.id),
+            following_count = (SELECT COUNT(*) FROM follows WHERE follower_id = users.id)
+    `);
+    updateUserCounts.run();
+
     const createdPosts = [];
 
-    // Each of the 15 users creates exactly 4 posts (total 60 posts)
+    // Each of the 25 users creates exactly 5 posts (total 125 posts)
     for (const [index, [username, , , topicSlug]] of selectedUsersToCreate.entries()) {
         const user = userByUsername[username];
         const topic = topics.find((entry) => entry.slug === topicSlug);
-        
+
         // Hashtag mapping for trending topics
         const trendingHashtags = {
             food: '#DeliciousThoughts',
@@ -286,13 +371,16 @@ async function seed() {
             design: '#Minimalist',
             music: '#Beats',
             fitness: '#Workout',
-            photography: '#Capture'
+            photography: '#Capture',
+            books: '#BookNook',
+            art: '#ArtDaily',
+            lifestyle: '#SimpleLiving'
         };
         const hashtag = trendingHashtags[topicSlug] || `#${topicSlug}`;
 
-        for (let postIndex = 0; postIndex < 4; postIndex += 1) {
+        for (let postIndex = 0; postIndex < 5; postIndex += 1) {
             const content = buildPostContent(user, topic, postIndex) + `\n\nLoving this! ${hashtag}`;
-            
+
             const result = insertPost.run(
                 topic.titles[postIndex % topic.titles.length],
                 content,
@@ -309,21 +397,36 @@ async function seed() {
         }
     }
 
-    // Distribute exactly 40 comments across the 60 posts
-    let commentsCreated = 0;
-    while (commentsCreated < 40) {
+    // Distribute exactly 100 comments across the 125 posts
+    // First, ensure some posts have 6-7 comments from different users for testing
+    const popularPosts = createdPosts.slice(0, 4); // First 4 posts will be popular
+
+    for (const post of popularPosts) {
+        // Get 6-7 different commenters for this post
+        const potentialCommenters = users.filter(u => u.id !== post.authorId);
+        const numComments = 6 + Math.floor(Math.random() * 2); // 6 or 7 comments
+        const commenters = [...potentialCommenters].sort(() => Math.random() - 0.5).slice(0, numComments);
+
+        for (const commenter of commenters) {
+            const commentText = commentPhrases[Math.floor(Math.random() * commentPhrases.length)];
+            insertComment.run(post.id, commenter.id, commentText);
+        }
+    }
+
+    let commentsCreated = popularPosts.length * 6; // 24 comments already created
+    while (commentsCreated < 100) {
         // Random post
         const post = createdPosts[Math.floor(Math.random() * createdPosts.length)];
-        
+
         // Random commenter (not the author)
         const potentialCommenters = users.filter(u => u.id !== post.authorId);
         const commenter = potentialCommenters[Math.floor(Math.random() * potentialCommenters.length)];
-        
+
         // Check how many comments this user already has on this post
         const existingCommentsCount = db.prepare('SELECT COUNT(*) as count FROM comments WHERE post_id = ? AND author_id = ?')
             .get(post.id, commenter.id).count;
-            
-        if (existingCommentsCount < 2) { // Max 2 comments per user per post
+
+        if (existingCommentsCount < 1) { // Max 1 comment per user per post for random distribution
             const commentText = commentPhrases[Math.floor(Math.random() * commentPhrases.length)];
             insertComment.run(post.id, commenter.id, commentText);
             commentsCreated++;

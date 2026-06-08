@@ -16,6 +16,9 @@ export const formatUser = (row) => {
         full_name: row.full_name,
         biography: row.biography,
         avatar_url: row.avatar_url,
+        animated_avatar_url: row.animated_avatar_url,
+        followers_count: row.followers_count ?? 0,
+        following_count: row.following_count ?? 0,
         created_at: row.created_at
     };
 };

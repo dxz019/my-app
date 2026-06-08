@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-export const API_BASE_URL = 'http://localhost:3001';
+// Use relative URL for development (goes through vite proxy)
+// In production, this would be the actual backend URL
+export const API_BASE_URL = '';
 
 export const getErrorMessage = (error, fallback = 'Something went wrong') =>
     error?.response?.data?.detail ||
@@ -11,7 +13,8 @@ export const getErrorMessage = (error, fallback = 'Something went wrong') =>
 export const getPublicUrl = (path) => {
     if (!path) return null;
     if (path.startsWith('http') || path.startsWith('data:')) return path;
-    return `${API_BASE_URL}${path}`;
+    // For static files, use the backend URL
+    return `http://localhost:3001${path}`;
 };
 
 const api = axios.create({
@@ -33,7 +36,7 @@ export const authAPI = {
     login: async (identifier, password) => {
         const formData = new URLSearchParams();
         formData.append('password', password);
-        
+
         // Send as email if contains '@', else as username
         if (identifier.includes('@')) {
             formData.append('email', identifier);
@@ -83,6 +86,21 @@ export const usersAPI = {
         const response = await api.get('/users/suggested/all', {
             params: { limit }
         });
+        return response.data;
+    },
+
+    toggleFollow: async (userId) => {
+        const response = await api.post(`/users/${userId}/follow`);
+        return response.data;
+    },
+
+    unfollow: async (userId) => {
+        const response = await api.post(`/users/${userId}/unfollow`);
+        return response.data;
+    },
+
+    getFollowStatus: async (userId) => {
+        const response = await api.get(`/users/${userId}/follow-status`);
         return response.data;
     },
 };
