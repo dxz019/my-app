@@ -7,7 +7,39 @@ export default defineConfig({
     server: {
         port: 5173,
         proxy: {
-            '/api': {
+            '/users': {
+                target: 'http://localhost:3001',
+                changeOrigin: true
+            },
+            '/posts': {
+                target: 'http://localhost:3001',
+                changeOrigin: true
+            },
+            '/comments': {
+                target: 'http://localhost:3001',
+                changeOrigin: true
+            },
+            '/upload': {
+                target: 'http://localhost:3001',
+                changeOrigin: true
+            },
+            '/drafts': {
+                target: 'http://localhost:3001',
+                changeOrigin: true
+            },
+            '/direct-messages': {
+                target: 'http://localhost:3001',
+                changeOrigin: true
+            },
+            '/saved-posts': {
+                target: 'http://localhost:3001',
+                changeOrigin: true
+            },
+            '/stories': {
+                target: 'http://localhost:3001',
+                changeOrigin: true
+            },
+            '/health': {
                 target: 'http://localhost:3001',
                 changeOrigin: true
             }

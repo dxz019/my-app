@@ -6,7 +6,7 @@ import TrendingSidebar from '../components/TrendingSidebar';
 import { Button } from 'primereact/button';
 import { getErrorMessage } from '../services/api';
 
-const ExplorePage = ({ posts: propPosts, token, currentUser, showToast, fetchPosts, requireAuth }) => {
+const ExplorePage = ({ posts: propPosts, token, currentUser, showToast, fetchPosts, requireAuth, updatePostLikes }) => {
     const { comments, fetchCommentsForPosts, addComment } = useComments(token, currentUser);
     const [searchParams, setSearchParams] = useSearchParams();
     const activeTag = searchParams.get('tag');
@@ -17,12 +17,12 @@ const ExplorePage = ({ posts: propPosts, token, currentUser, showToast, fetchPos
     const trendingPosts = useMemo(() => {
         if (!propPosts) return [];
         let filtered = [...propPosts];
-        
+
         // If a tag is active, filter by tag content
         if (activeTag) {
             const tagLower = activeTag.toLowerCase();
-            filtered = filtered.filter(post => 
-                post.content.toLowerCase().includes(`#${tagLower}`) || 
+            filtered = filtered.filter(post =>
+                post.content.toLowerCase().includes(`#${tagLower}`) ||
                 post.content.toLowerCase().includes(tagLower)
             );
         }
@@ -64,7 +64,7 @@ const ExplorePage = ({ posts: propPosts, token, currentUser, showToast, fetchPos
                             {activeTag ? `Thoughts on #${activeTag}` : activeQuery ? `Results for "${activeQuery}"` : 'Explore Trending'}
                         </h1>
                         <p className="text-lg text-500 m-0 mt-1">
-                            {activeTag 
+                            {activeTag
                                 ? `Showing all top thoughts tagged with #${activeTag}`
                                 : activeQuery
                                     ? `Showing thoughts and people related to "${activeQuery}"`
@@ -74,9 +74,9 @@ const ExplorePage = ({ posts: propPosts, token, currentUser, showToast, fetchPos
                     </div>
                 </div>
                 {(activeTag || activeQuery) && (
-                    <Button 
-                        label="Clear Filter" 
-                        icon="pi pi-times" 
+                    <Button
+                        label="Clear Filter"
+                        icon="pi pi-times"
                         className="p-button-text p-button-rounded p-button-plain text-primary"
                         onClick={() => setSearchParams({})}
                     />
@@ -87,32 +87,33 @@ const ExplorePage = ({ posts: propPosts, token, currentUser, showToast, fetchPos
                 <div className="grid">
                     {trendingPosts.map((post) => (
                         <div key={post.id} className="col-12">
-                        <PostCard
-                            key={post.id}
-                            post={post}
-                            currentUser={currentUser}
-                            token={token}
-                            comments={comments}
-                            showComments={showComments}
-                            onToggleComments={handleToggleComments}
-                            onAddComment={async (postId, text) => {
-                                if (!requireAuth()) return;
-                                try {
-                                    await addComment(postId, text);
+                            <PostCard
+                                key={post.id}
+                                post={post}
+                                currentUser={currentUser}
+                                token={token}
+                                comments={comments}
+                                showComments={showComments}
+                                onToggleComments={handleToggleComments}
+                                onAddComment={async (postId, text) => {
+                                    if (!requireAuth()) return;
+                                    try {
+                                        await addComment(postId, text);
+                                        await fetchPosts();
+                                        showToast('Comment added!');
+                                    } catch (error) {
+                                        showToast(getErrorMessage(error, 'Failed to add comment'));
+                                        throw error;
+                                    }
+                                }}
+                                onDeletePost={fetchPosts}
+                                onDeleteComment={async (postId) => {
+                                    await fetchCommentsForPosts([postId], true);
                                     await fetchPosts();
-                                    showToast('Comment added!');
-                                } catch (error) {
-                                    showToast(getErrorMessage(error, 'Failed to add comment'));
-                                    throw error;
-                                }
-                            }}
-                            onDeletePost={fetchPosts}
-                            onDeleteComment={async (postId) => {
-                                await fetchCommentsForPosts([postId], true);
-                                await fetchPosts();
-                            }}
-                            requireAuth={requireAuth}
-                        />
+                                }}
+                                onUpdatePostLikes={updatePostLikes}
+                                requireAuth={requireAuth}
+                            />
                         </div>
                     ))}
                 </div>

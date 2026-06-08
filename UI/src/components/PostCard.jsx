@@ -58,9 +58,6 @@ const PostCard = ({
     const confirmDelete = async () => {
         try {
             await onDeletePost(post.id);
-            if (onDeletePost) {
-                onDeletePost(post.id);
-            }
         } catch (error) {
             console.error('Error deleting post:', error);
         } finally {
@@ -71,7 +68,7 @@ const PostCard = ({
     const handleLike = async () => {
         if (!requireAuth()) return;
         if (likeLoading) return;
-        
+
         setLikeLoading(true);
         try {
             if (isLiked) {
@@ -128,11 +125,11 @@ const PostCard = ({
     );
 
     return (
-        <Card 
-            header={header} 
+        <Card
+            header={header}
             className="mb-5 border-1 hover:shadow-3 transition-all transition-duration-300 cursor-pointer"
-            style={{ 
-                overflow: 'hidden', 
+            style={{
+                overflow: 'hidden',
                 backgroundColor: 'var(--color-bg-card)',
                 border: '2px solid var(--color-border-bright)',
                 borderRadius: 'var(--radius-lg)',
@@ -183,7 +180,7 @@ const PostCard = ({
                 ) : null}
 
                 <div className="flex align-items-center gap-3 mt-3 pb-2">
-                    <div 
+                    <div
                         className="flex align-items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-primary-light transition-all transition-duration-200"
                         onClick={(e) => { e.stopPropagation(); handleLike(); }}
                         style={{ transition: 'all 0.2s ease' }}
@@ -194,7 +191,7 @@ const PostCard = ({
                         <span className={`text-sm font-semibold ${isLiked ? 'text-primary' : 'text-500'}`}>{likesCount}</span>
                     </div>
 
-                    <div 
+                    <div
                         className="flex align-items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-primary-light transition-all transition-duration-200"
                         onClick={(e) => { e.stopPropagation(); requireAuth(() => onToggleComments(post.id)); }}
                         style={{ transition: 'all 0.2s ease' }}
@@ -202,69 +199,69 @@ const PostCard = ({
                         onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
                     >
                         <i className="pi pi-comment text-500 hover:text-primary text-xl transition-colors"></i>
-                        <span className="text-500 text-sm font-semibold">{post.comments_count || 0}</span>
+                        <span className="text-500 text-sm font-semibold">{comments.length || post.comments_count || 0}</span>
                     </div>
 
-                    <div 
-                        className="flex align-items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-primary-light transition-all transition-duration-200"
-                        style={{ transition: 'all 0.2s ease' }}
-                        onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.08)'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
-                    >
-                        <span 
+                    <div className="relative flex align-items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-primary-light transition-all transition-duration-200" style={{ transition: 'all 0.2s ease' }}>
+                        <span
                             className="text-500 hover:text-primary text-xl transition-colors cursor-pointer"
+                            style={{ color: 'var(--color-text-main)' }}
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setShowEmojiPicker(!showEmojiPicker);
                             }}
                         >
-                            <i className="pi pi-face-smile"></i>
+                            <i className="pi pi-face-smile" style={{ color: 'inherit' }}></i>
                         </span>
+                        {showEmojiPicker && (
+                            <div
+                                className="absolute bottom-100 left-0 surface-card p-2 flex gap-3 mb-2 border-round-xl shadow-6 z-5 border-1 surface-border"
+                                style={{ minWidth: '280px' }}
+                            >
+                                {['🔥', '😂', '😮', '😢', '💯'].map(emoji => (
+                                    <span
+                                        key={emoji}
+                                        className="cursor-pointer p-1 text-2xl"
+                                        style={{ color: 'var(--color-text-main)' }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            requireAuth(() => {
+                                                setReaction(emoji);
+                                                setShowEmojiPicker(false);
+                                            });
+                                        }}
+                                    >
+                                        {emoji}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
 
-{showEmojiPicker && (
-                     <div
-                         className="absolute bottom-100 left-0 surface-card p-2 flex gap-3 mb-2 border-round-xl shadow-6 z-5 border-1 surface-border"
-                     >
-                        {['🔥', '😂', '😮', '😢', '💯'].map(emoji => (
-                            <span 
-                                key={emoji}
-                                className="cursor-pointer p-1 text-2xl"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    requireAuth(() => {
-                                        setReaction(emoji);
-                                        setShowEmojiPicker(false);
-                                    });
-                                }}
-                            >
-                                {emoji}
-                            </span>
-                        ))}
-                    </div>
-                )}
-
                 {reaction && (
-                    <span 
+                    <span
                         className="text-sm font-bold surface-hover p-1 px-2 border-round-lg cursor-pointer border-1 border-primary-light"
+                        style={{ color: 'var(--color-text-main)' }}
                         onClick={(e) => { e.stopPropagation(); requireAuth(() => setReaction(null)); }}
                     >
                         {reaction} 1
                     </span>
                 )}
 
-                <CommentSection
-                    postId={post.id}
-                    comments={comments}
-                    currentUser={currentUser}
-                    token={token}
-                    onAddComment={onAddComment}
-                    onDeleteComment={(commentId) => {
-                        if (onDeleteComment) onDeleteComment(post.id, commentId);
-                    }}
-                    requireAuth={requireAuth}
-                />
+                {showComments && (
+                    <CommentSection
+                        postId={post.id}
+                        comments={comments}
+                        currentUser={currentUser}
+                        token={token}
+                        onAddComment={onAddComment}
+                        onDeleteComment={(commentId) => {
+                            if (onDeleteComment) onDeleteComment(post.id, commentId);
+                        }}
+                        requireAuth={requireAuth}
+                    />
+                )}
             </div>
 
             <Dialog

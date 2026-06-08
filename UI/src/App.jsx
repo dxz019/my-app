@@ -18,7 +18,7 @@ import PlayerPage from './pages/PlayerPage';
 
 function App() {
     const { token, currentUser, login, register, logout, loading: authLoading, refreshCurrentUser } = useAuth();
-    const { posts, fetchPosts, loading: postsLoading, error: postsError } = usePosts(token, currentUser);
+    const { posts, fetchPosts, loading: postsLoading, error: postsError, updatePostLikes } = usePosts(token, currentUser);
     const { showToast } = useToast();
     const [authModalVisible, setAuthModalVisible] = useState(false);
     const [theme, setTheme] = useState(() => {
@@ -63,23 +63,23 @@ function App() {
         );
     }
 
-return (
-         <div className="flex flex-column min-h-screen surface-ground" style={{ position: 'relative' }}>
-              {!isAuthPage && (
-                  <Header
-                      currentUser={currentUser}
-                      onLogout={logout}
-                      showToast={showToast}
-                      token={token}
-                      fetchPosts={fetchPosts}
-                      theme={theme}
-                      onToggleTheme={toggleTheme}
-                  />
-              )}
+    return (
+        <div className="flex flex-column min-h-screen surface-ground" style={{ position: 'relative' }}>
+            {!isAuthPage && (
+                <Header
+                    currentUser={currentUser}
+                    onLogout={logout}
+                    showToast={showToast}
+                    token={token}
+                    fetchPosts={fetchPosts}
+                    theme={theme}
+                    onToggleTheme={toggleTheme}
+                />
+            )}
 
-              <AntigravityCursor />
+            <AntigravityCursor />
 
-               <main className={`flex-grow-1 w-full flex flex-column align-items-center ${!isAuthPage ? "py-5 px-3" : ""}`} style={!isAuthPage ? { paddingTop: '110px', position: 'relative', zIndex: 1 } : { position: 'relative', zIndex: 1 }}>
+            <main className={`flex-grow-1 w-full flex flex-column align-items-center ${!isAuthPage ? "py-5 px-3" : ""}`} style={!isAuthPage ? { paddingTop: '110px', position: 'relative', zIndex: 1 } : { position: 'relative', zIndex: 1 }}>
                 <div className={`w-full ${!isAuthPage ? "max-w-screen-xl flex flex-column gap-4" : ""}`}>
                     <Routes>
                         <Route path="/" element={<LandingPage />} />
@@ -95,6 +95,7 @@ return (
                                     requireAuth={requireAuth}
                                     loading={postsLoading}
                                     error={postsError}
+                                    updatePostLikes={updatePostLikes}
                                 />
                             }
                         />
@@ -108,6 +109,7 @@ return (
                                     showToast={showToast}
                                     fetchPosts={fetchPosts}
                                     requireAuth={requireAuth}
+                                    updatePostLikes={updatePostLikes}
                                 />
                             }
                         />
@@ -151,35 +153,35 @@ return (
                                 <Navigate to="/" replace />
                             )}
                         />
-<Route
-                             path="/register"
-                             element={!token ? (
-                                 <RegisterPage onRegister={register} showToast={showToast} />
-                             ) : (
-                                 <Navigate to="/" replace />
-                             )}
-                         />
-                         <Route
-                             path="/dashboard"
-                             element={token ? (
-                                 <DashboardPage token={token} showToast={showToast} />
-                             ) : (
-                                 <Navigate to="/login" replace />
-                             )}
-                         />
-                         <Route
-                             path="/editor/:id"
-                             element={token ? (
-                                 <EditorPage token={token} />
-                             ) : (
-                                 <Navigate to="/login" replace />
-                             )}
-                         />
-                         <Route
-                             path="/watch/:id"
-                             element={<PlayerPage token={token} />}
-                         />
-                     </Routes>
+                        <Route
+                            path="/register"
+                            element={!token ? (
+                                <RegisterPage onRegister={register} showToast={showToast} />
+                            ) : (
+                                <Navigate to="/" replace />
+                            )}
+                        />
+                        <Route
+                            path="/dashboard"
+                            element={token ? (
+                                <DashboardPage token={token} showToast={showToast} />
+                            ) : (
+                                <Navigate to="/login" replace />
+                            )}
+                        />
+                        <Route
+                            path="/editor/:id"
+                            element={token ? (
+                                <EditorPage token={token} />
+                            ) : (
+                                <Navigate to="/login" replace />
+                            )}
+                        />
+                        <Route
+                            path="/watch/:id"
+                            element={<PlayerPage token={token} />}
+                        />
+                    </Routes>
                 </div>
             </main>
 

@@ -44,6 +44,57 @@ export const usePosts = (token, currentUser) => {
         await fetchPosts(); // Refresh posts after creation
     }, [token, currentUser, fetchPosts]);
 
+    const updatePostLikes = useCallback(async (postId, isUnlike) => {
+        if (!token || !currentUser) {
+            throw new Error('Must be logged in to like a post');
+        }
+
+        // Optimistically update the posts state first
+        setPosts(prevPosts =>
+            prevPosts.map(post =>
+                post.id === postId ? {
+                    ...post,
+                    likes_count: isUnlike ? post.likes_count - 1 : post.likes_count + 1,
+                    is_liked: !post.is_liked
+                } : post
+            )
+        );
+
+        try {
+            if (isUnlike) {
+                const result = await postsAPI.unlikePost(postId);
+                // Update with actual count from server (in case it differs)
+                setPosts(prevPosts =>
+                    prevPosts.map(post =>
+                        post.id === postId ? { ...post, likes_count: result.likes_count, is_liked: false } : post
+                    )
+                );
+                return result;
+            } else {
+                const result = await postsAPI.likePost(postId);
+                // Update with actual count from server (in case it differs)
+                setPosts(prevPosts =>
+                    prevPosts.map(post =>
+                        post.id === postId ? { ...post, likes_count: result.likes_count, is_liked: true } : post
+                    )
+                );
+                return result;
+            }
+        } catch (error) {
+            // Revert optimistic update on failure
+            setPosts(prevPosts =>
+                prevPosts.map(post =>
+                    post.id === postId ? {
+                        ...post,
+                        likes_count: isUnlike ? post.likes_count + 1 : post.likes_count - 1,
+                        is_liked: post.is_liked
+                    } : post
+                )
+            );
+            throw error; // Re-throw so calling code can handle it
+        }
+    }, [token, currentUser, postsAPI]);
+
     const getUserPosts = useCallback(async (userId) => {
         setLoading(true);
         try {
@@ -55,7 +106,7 @@ export const usePosts = (token, currentUser) => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [token, currentUser, postsAPI]);
 
     const getFilteredPosts = useCallback((filterType, searchedUser = null) => {
         if (!token || !currentUser) return posts;
@@ -79,6 +130,7 @@ export const usePosts = (token, currentUser) => {
         error,
         fetchPosts,
         createPost,
+        updatePostLikes,
         getUserPosts,
         getFilteredPosts,
     };

@@ -20,14 +20,20 @@ const ProfilePage = ({
     requireAuth,
     refreshCurrentUser
 }) => {
+    // Get the userId from URL params to fetch other user's profile
     const { userId } = useParams();
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
+    // Check if edit mode is enabled via query param (?edit=true or ?setup=true)
     const isEditModeParam = searchParams.get('edit') === 'true' || searchParams.get('setup') === 'true';
 
+    // Store the fetched user profile data (null when viewing own profile or loading)
     const [searchedUser, setSearchedUser] = useState(null);
+    // Loading state for profile fetch
     const [loading, setLoading] = useState(false);
+    // Edit mode state for profile editing
     const [isEditing, setIsEditing] = useState(false);
+    // Form data for profile editing fields
     const [editForm, setEditForm] = useState({
         full_name: '',
         username: '',
@@ -36,24 +42,31 @@ const ProfilePage = ({
         avatar_url: '',
         animated_avatar_url: ''
     });
+    // Upload state for profile picture
     const [uploading, setUploading] = useState(false);
+    // Recent activity data for the profile page
     const [activity, setActivity] = useState([]);
     const fileInputRef = useRef(null);
     const [showAvatarBuilder, setShowAvatarBuilder] = useState(false);
 
+    // Track if current user is following the profile user
     const [isFollowing, setIsFollowing] = useState(false);
+    // Loading state for follow/unfollow button
     const [followLoading, setFollowLoading] = useState(false);
 
     const { comments, fetchCommentsForPosts } = useComments(token, currentUser);
     const [showComments, setShowComments] = useState({});
 
+    // Fetch user profile data when userId changes
     useEffect(() => {
         const fetchUserData = async () => {
             if (userId) {
                 setLoading(true);
                 try {
+                    // Fetch user by ID from database
                     const user = await usersAPI.getUserById(parseInt(userId));
                     setSearchedUser(user);
+                    // Fetch follow status if viewing another user's profile
                     if (currentUser && user && parseInt(userId) !== currentUser.id) {
                         fetchFollowStatus(parseInt(userId));
                     }
@@ -70,53 +83,68 @@ const ProfilePage = ({
         fetchUserData();
     }, [userId, navigate, showToast, currentUser]);
 
+    // Check if current user is following target user
     const fetchFollowStatus = async (targetUserId) => {
         try {
+            // Call API to get follow status
             const result = await usersAPI.getFollowStatus(targetUserId);
+            // Update local state with follow status
             setIsFollowing(result.isFollowing);
         } catch (e) {
+            // Default to not following on error
             setIsFollowing(false);
         }
     };
 
+    // Handle follow/unfollow toggle button click
     const handleFollowToggle = async () => {
+        // Require authentication before allowing follow action
         if (!requireAuth()) return;
+        // Prevent double-click
         if (followLoading) return;
         setFollowLoading(true);
+        // Store previous state for rollback on error
         const previous = isFollowing;
+        // Optimistically update UI
         setIsFollowing(!previous);
         try {
             if (!previous) {
+                // Currently not following - follow the user
                 const result = await usersAPI.toggleFollow(displayUser.id);
                 showToast('Following!');
-                // Update user data with returned data
+                // Update user data with returned follower/following counts
                 if (result.user) {
+                    // For other profiles, update searchedUser to refresh counts
                     if (userId) {
                         setSearchedUser(result.user);
                     }
-                    // For own profile, refresh current user to update displayed counts
+                    // For own profile, refresh current user to update displayed counts in header
                     if (refreshCurrentUser) {
                         await refreshCurrentUser();
                     }
                 }
             } else {
+                // Currently following - unfollow the user
                 const result = await usersAPI.unfollow(displayUser.id);
                 showToast('Unfollowed');
-                // Update user data with returned data
+                // Update user data with returned follower/following counts
                 if (result.user) {
+                    // For other profiles, update searchedUser to refresh counts
                     if (userId) {
                         setSearchedUser(result.user);
                     }
-                    // For own profile, refresh current user to update displayed counts
+                    // For own profile, refresh current user to update displayed counts in header
                     if (refreshCurrentUser) {
                         await refreshCurrentUser();
                     }
                 }
             }
         } catch (e) {
+            // Rollback optimistic update on error
             setIsFollowing(previous);
             showToast('Could not update follow status');
         } finally {
+            // Clear loading state
             setFollowLoading(false);
         }
     };
@@ -535,20 +563,23 @@ const ProfilePage = ({
                                         {displayUser.biography}
                                     </p>
                                 )}
-                                <div className="flex align-items-center gap-4 mt-3">
-                                    <div className="text-center">
-                                        <span className="font-bold text-xl block" style={{ color: 'var(--color-text-main)' }}>{displayUser.following_count || 0}</span>
-                                        <span className="text-sm" style={{ color: 'var(--color-text-sub)' }}>Following</span>
-                                    </div>
-                                    <div className="text-center">
-                                        <span className="font-bold text-xl block" style={{ color: 'var(--color-text-main)' }}>{displayUser.followers_count || 0}</span>
-                                        <span className="text-sm" style={{ color: 'var(--color-text-sub)' }}>Followers</span>
-                                    </div>
-                                    <div className="text-center">
-                                        <span className="font-bold text-xl block" style={{ color: 'var(--color-text-main)' }}>{userPosts.length}</span>
-                                        <span className="text-sm" style={{ color: 'var(--color-text-sub)' }}>Posts</span>
-                                    </div>
-                                </div>
+<div className="flex align-items-center gap-4 mt-3">
+                                     {/* Display following count - shows how many users this profile follows */}
+                                     <div className="text-center">
+                                         <span className="font-bold text-xl block" style={{ color: 'var(--color-text-main)' }}>{displayUser.following_count || 0}</span>
+                                         <span className="text-sm" style={{ color: 'var(--color-text-sub)' }}>Following</span>
+                                     </div>
+                                     {/* Display followers count - shows how many users follow this profile */}
+                                     <div className="text-center">
+                                         <span className="font-bold text-xl block" style={{ color: 'var(--color-text-main)' }}>{displayUser.followers_count || 0}</span>
+                                         <span className="text-sm" style={{ color: 'var(--color-text-sub)' }}>Followers</span>
+                                     </div>
+                                     {/* Display posts count - shows total posts by this user */}
+                                     <div className="text-center">
+                                         <span className="font-bold text-xl block" style={{ color: 'var(--color-text-main)' }}>{userPosts.length}</span>
+                                         <span className="text-sm" style={{ color: 'var(--color-text-sub)' }}>Posts</span>
+                                     </div>
+                                 </div>
                             </>
                         )}
                     </div>

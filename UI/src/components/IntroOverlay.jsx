@@ -7,6 +7,20 @@ const IntroOverlay = ({ onFinish }) => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        // Check if user has seen intro before
+        const hasSeenIntro = sessionStorage.getItem('hasSeenIntro');
+        if (hasSeenIntro) {
+            if (onFinish) {
+                onFinish();
+            } else {
+                navigate('/home');
+            }
+            return;
+        }
+
+        // Mark intro as seen
+        sessionStorage.setItem('hasSeenIntro', 'true');
+
         // Phase 1: Cinematic intro (0–1.5s) - logo appears with scale/blur
         const introTimer = setTimeout(() => {
             setPhase('hold');
@@ -34,7 +48,18 @@ const IntroOverlay = ({ onFinish }) => {
     }, [navigate, onFinish]);
 
     return (
-        <div className={`intro-overlay ${phase}`}>
+        <div 
+            className={`intro-overlay ${phase}`}
+            onClick={() => {
+                // Skip intro on click
+                if (onFinish) {
+                    onFinish();
+                } else {
+                    navigate('/home');
+                }
+            }}
+            style={{ cursor: 'pointer' }}
+        >
             {/* Ambient background gradient */}
             <div className="intro-bg-gradient"></div>
 
@@ -53,18 +78,18 @@ const IntroOverlay = ({ onFinish }) => {
                  ))}
              </div>
 
-            {/* Center logo */}
-            <div className="intro-logo-wrapper">
-                <div className="intro-logo">
-                    <span className="intro-logo-text">THOUGHTS</span>
-                    <div className="intro-logo-glow"></div>
-                </div>
-            </div>
-
-             {/* Tagline */}
-             <div className="intro-tagline">
-                 <p>Visualise • Share • Inspire</p>
+             {/* Center logo */}
+             <div className="intro-logo-wrapper">
+                 <div className="intro-logo">
+                     <span className="intro-logo-text">THOUGHTS</span>
+                     <div className="intro-logo-glow"></div>
+                 </div>
              </div>
+
+              {/* Tagline */}
+              <div className="intro-tagline">
+                  <p>Visualise • Share • Inspire</p>
+              </div>
         </div>
     );
 };

@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import PostCard from '../components/PostCard';
 import CreatePost from '../components/CreatePost';
 import TrendingSidebar from '../components/TrendingSidebar';
@@ -8,28 +9,45 @@ import { Button } from 'primereact/button';
 import { Avatar } from 'primereact/avatar';
 import { getPublicUrl } from '../services/api';
 import usePosts from '../hooks/usePosts';
+import useComments from '../hooks/useComments';
 
-const HomePage = ({ 
-    posts: propPosts, 
-    loading, 
-    error, 
-    token, 
-    currentUser, 
-    showToast, 
-    fetchPosts, 
-    requireAuth 
+const HomePage = ({
+    posts: propPosts,
+    loading,
+    error,
+    token,
+    currentUser,
+    showToast,
+    fetchPosts,
+    requireAuth,
+    updatePostLikes
 }) => {
-    const [comments, setComments] = useState({});
-    const [showComments, setShowComments] = useState({});
+    const navigate = useNavigate();
+    const [showCommentsState, setShowCommentsState] = useState({});
     const createPostRef = useRef(null);
     const { createPost } = usePosts(token, currentUser);
+    const { comments, fetchComments, addComment, getCommentsForPost } = useComments(token, currentUser);
 
     // Debug what we're rendering
     console.log('HomePage render - propPosts:', propPosts, 'loading:', loading, 'error:', error);
 
-    const onToggleComments = (postId) => {
-        setShowComments(prev => ({ ...prev, [postId]: !prev[postId] }));
-    };
+    const onToggleComments = useCallback(async (postId) => {
+        const currentlyOpen = showCommentsState[postId];
+        setShowCommentsState(prev => ({ ...prev, [postId]: !prev[postId] }));
+        // Fetch comments when opening the comment section
+        if (!currentlyOpen) {
+            await fetchComments(postId);
+        }
+    }, [showCommentsState, fetchComments]);
+
+    const handleAddComment = useCallback(async (postId, content) => {
+        await addComment(postId, content);
+    }, [addComment]);
+
+    const handleDeleteComment = useCallback((postId, commentId) => {
+        // Comments are refreshed by the useComments hook after deletion
+        fetchComments(postId);
+    }, [fetchComments]);
 
     const handleCreatePost = async (content, media) => {
         try {
@@ -65,13 +83,13 @@ const HomePage = ({
 
     return (
         <div className="w-full grid grid-nogutter max-w-screen-xl mx-auto px-2">
-             <div className="col-12 lg:col-8 pr-0 lg:pr-4">
+            <div className="col-12 lg:col-8 pr-0 lg:pr-4">
                 <div className="pt-8 pb-6 w-full">
                     {/* Inline Create Post Trigger */}
                     {token && currentUser && (
-                        <div 
+                        <div
                             className="p-4 mb-5 shadow-1 cursor-pointer hover:shadow-2 transition-all transition-duration-300"
-                            style={{ 
+                            style={{
                                 backgroundColor: 'var(--color-bg-elevated)',
                                 border: '2px solid var(--color-border-bright)',
                                 borderRadius: 'var(--radius-lg)'
@@ -79,18 +97,18 @@ const HomePage = ({
                             onClick={openCreatePost}
                         >
                             <div className="flex align-items-center gap-3">
-                                <Avatar 
-                                    image={getPublicUrl(currentUser?.avatar_url)} 
+                                <Avatar
+                                    image={getPublicUrl(currentUser?.avatar_url)}
                                     label={!currentUser?.avatar_url ? currentUser?.username?.charAt(0).toUpperCase() : null}
-                                    size="large" 
-                                    shape="circle" 
+                                    size="large"
+                                    shape="circle"
                                     style={{ backgroundColor: 'var(--color-primary)', color: '#fff' }}
                                 />
                                 <div className="flex-1 surface-100 p-3 border-round-3xl text-600 font-medium surface-hover transition-colors transition-duration-200" style={{ backgroundColor: 'var(--color-input-bg)', border: '1px solid var(--color-input-border)' }}>
                                     What's on your mind, {currentUser?.full_name?.split(' ')[0] || currentUser?.username}? ✨
                                 </div>
-                                <Button 
-                                    icon="pi pi-plus" 
+                                <Button
+                                    icon="pi pi-plus"
                                     className="p-button-rounded p-button-primary shadow-2"
                                     style={{ boxShadow: '0 4px 12px rgba(255, 102, 0, 0.3)' }}
                                     onClick={(e) => { e.stopPropagation(); openCreatePost(); }}
@@ -99,19 +117,23 @@ const HomePage = ({
                         </div>
                     )}
 
-                    <CreatePost 
+                    <CreatePost
                         ref={createPostRef}
-                        currentUser={currentUser} 
-                        onCreatePost={handleCreatePost} 
-                        showToast={showToast} 
+                        currentUser={currentUser}
+                        onCreatePost={handleCreatePost}
+                        showToast={showToast}
                     />
 
-                     {!loading && (!propPosts || propPosts.length === 0) ? (
+                    {!loading && (!propPosts || propPosts.length === 0) ? (
                         <div className="surface-card p-8 border-round-2xl text-center border-1 surface-border shadow-1 mt-4">
                             <i className="pi pi-comments text-6xl text-primary-light mb-4 block"></i>
                             <h2 className="text-2xl font-bold mb-2">No thoughts shared yet.</h2>
                             <p className="text-lg text-500 mb-5">Be the first to spark a conversation!</p>
-                            <Button label="Spark a Conversation" icon="pi pi-plus" onClick={openCreatePost} className="p-button-rounded px-4" />
+                            {token ? (
+                                <Button label="Spark a Conversation" icon="pi pi-plus" onClick={openCreatePost} className="p-button-rounded px-4" />
+                            ) : (
+                                <Button label="Sign In to Post" icon="pi pi-sign-in" onClick={() => navigate('/login')} className="p-button-rounded px-4" />
+                            )}
                         </div>
                     ) : (
                         <div className="flex flex-column gap-4 mt-6">
@@ -121,12 +143,14 @@ const HomePage = ({
                                         post={post}
                                         currentUser={currentUser}
                                         token={token}
-                                        comments={comments}
-                                        showComments={showComments[post.id]}
+                                        comments={getCommentsForPost(post.id)}
+                                        showComments={showCommentsState[post.id]}
                                         onToggleComments={onToggleComments}
                                         onDeletePost={() => fetchPosts()}
-                                        onUpdatePostLikes={() => {}} 
+                                        onUpdatePostLikes={updatePostLikes}
                                         requireAuth={requireAuth}
+                                        onAddComment={handleAddComment}
+                                        onDeleteComment={handleDeleteComment}
                                     />
                                 </div>
                             ))}

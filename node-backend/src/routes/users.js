@@ -137,11 +137,16 @@ router.get('/:id/activity', async (req, res) => {
 // Follow a user
 router.post('/:id/follow', authenticateToken, async (req, res) => {
     try {
+        // Get the ID of the authenticated user from the JWT token
         const userId = req.user.id;
+        // Parse the target user ID from URL params
         const followedId = parseInt(req.params.id);
-        
+
+        // Create the follow relationship in the database and update counts
         await userService.followUser(userId, followedId);
+        // Fetch the updated user to return fresh follower/following counts
         const updatedUser = await userService.getUserById(followedId);
+        // Return success message with updated user data for immediate UI refresh
         res.json({ message: 'User followed successfully', user: updatedUser });
     } catch (error) {
         console.error('Follow error:', error);
@@ -152,11 +157,16 @@ router.post('/:id/follow', authenticateToken, async (req, res) => {
 // Unfollow a user
 router.post('/:id/unfollow', authenticateToken, async (req, res) => {
     try {
+        // Get the ID of the authenticated user from the JWT token
         const userId = req.user.id;
+        // Parse the target user ID from URL params
         const followedId = parseInt(req.params.id);
-        
+
+        // Remove the follow relationship and decrement counts
         await userService.unfollowUser(userId, followedId);
+        // Fetch the updated user to return fresh follower/following counts
         const updatedUser = await userService.getUserById(followedId);
+        // Return success message with updated user data for immediate UI refresh
         res.json({ message: 'User unfollowed successfully', user: updatedUser });
     } catch (error) {
         console.error('Unfollow error:', error);
@@ -167,10 +177,14 @@ router.post('/:id/unfollow', authenticateToken, async (req, res) => {
 // Check if user is following another user
 router.get('/:id/follow-status', authenticateToken, async (req, res) => {
     try {
+        // Get the ID of the authenticated user from the JWT token
         const userId = req.user.id;
+        // Parse the target user ID from URL params
         const followedId = parseInt(req.params.id);
-        
+
+        // Check if follow relationship exists between the two users
         const isFollowing = await userService.isFollowing(userId, followedId);
+        // Return follow status to determine button state on frontend
         res.json({ isFollowing });
     } catch (error) {
         console.error('Check follow error:', error);

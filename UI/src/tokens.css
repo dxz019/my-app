@@ -2,10 +2,7 @@
  * Design Tokens - Color Palette
  */
 
-  :root {
-      /* ============================================
-         LIGHT THEME - Pure White Cards + Baby Blue Background
-         ============================================ */
+:root {
 
       /* Vibrant Blue - Brand color */
       --color-primary: #0066FF;

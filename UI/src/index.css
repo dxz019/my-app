@@ -11,11 +11,27 @@
    GLOBAL & THEME OVERRIDES
    ============================================ */
 
-html, body {
+html,
+body {
     background-color: var(--color-bg-page);
     color: var(--color-text-main);
 }
 
+/* Light theme text colors */
+.text-color,
+.text-500,
+.text-600,
+.text-700,
+.p-card .p-card-content,
+.p-card .p-card-body {
+    color: var(--color-text-main) !important;
+}
+
+.text-500 {
+    color: var(--color-text-sub) !important;
+}
+
+/* Dark theme overrides */
 .dark-theme .text-color,
 .dark-theme .text-500,
 .dark-theme .text-600,
@@ -30,7 +46,7 @@ html, body {
 }
 
 .surface-ground {
-     background-color: transparent !important;
+    background-color: transparent !important;
 }
 
 .surface-card {
@@ -46,11 +62,81 @@ html, body {
 }
 
 @keyframes jiggle {
-  0% { transform: rotate(0deg); }
-  25% { transform: rotate(-5deg); }
-  50% { transform: rotate(5deg); }
-  75% { transform: rotate(-2deg); }
-  100% { transform: rotate(0deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(-5deg);
+    }
+
+    50% {
+        transform: rotate(5deg);
+    }
+
+    75% {
+        transform: rotate(-2deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+@keyframes spin-loop {
+    from {
+        transform: rotateY(0deg);
+    }
+    to {
+        transform: rotateY(360deg);
+    }
+}
+
+@keyframes profile-ring-spin {
+    from {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+.profile-avatar-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-avatar-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    background: conic-gradient(
+        from 0deg,
+        var(--color-primary) 0%,
+        transparent 15%,
+        var(--color-primary) 30%,
+        transparent 45%,
+        var(--color-primary) 60%,
+        transparent 75%,
+        var(--color-primary) 90%,
+        transparent 100%
+    );
+    animation: profile-ring-spin 4s linear infinite;
+    opacity: 0.5;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.profile-avatar-ring::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border-radius: 50%;
+    background: var(--color-bg-card);
 }
 
 /* ============================================
@@ -158,8 +244,122 @@ input:-webkit-autofill:active {
 
 /* Light theme placeholders */
 .light-theme .p-inputtext::placeholder,
-.light-theme .p-password-input::placeholder {
+.light-theme .p-password-input::placeholder,
+.light-theme .p-autocomplete-input::placeholder,
+.light-theme .p-inputtextarea::placeholder {
     color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Light theme inputs - blend with page background */
+.light-theme .p-inputtext,
+.light-theme .p-inputtextarea,
+.light-theme .p-password-input,
+.light-theme .p-autocomplete-input {
+    background-color: var(--color-bg-page) !important;
+    color: #0a0a0a !important;
+    border-color: var(--color-border-bright) !important;
+    border-width: 1px !important;
+}
+
+.light-theme .p-inputtext:focus,
+.light-theme .p-inputtextarea:focus,
+.light-theme .p-password-input:focus,
+.light-theme .p-autocomplete-input:focus {
+    background-color: #ffffff !important;
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 3px var(--color-primary-light) !important;
+}
+
+.light-theme .p-inputtext:hover,
+.light-theme .p-inputtextarea:hover,
+.light-theme .p-password-input:hover,
+.light-theme .p-autocomplete-input:hover {
+    background-color: #ffffff !important;
+    border-color: var(--color-primary) !important;
+}
+
+.light-theme .p-inputtext[readonly],
+.light-theme .p-disabled {
+    background-color: #f0f7ff !important;
+}
+
+.light-theme .p-inputtext.ng-dirty.ng-invalid {
+    border-color: #e24f4f !important;
+}
+
+/* Light theme dropdown */
+.light-theme .p-dropdown {
+    background: var(--color-bg-page) !important;
+    color: #0a0a0a !important;
+    border: 1px solid var(--color-border-bright) !important;
+    border-radius: 12px !important;
+}
+
+.light-theme .p-dropdown:hover {
+    border-color: var(--color-primary) !important;
+}
+
+.light-theme .p-dropdown:not(.p-disabled):focus {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 3px var(--color-primary-light) !important;
+}
+
+.light-theme .p-dropdown .p-dropdown-label {
+    color: #0a0a0a !important;
+}
+
+.light-theme .p-dropdown-panel {
+    background: #ffffff !important;
+    border: 1px solid var(--color-border-bright) !important;
+    border-radius: 12px !important;
+    box-shadow: var(--elevation-3) !important;
+}
+
+.light-theme .p-dropdown-panel .p-dropdown-item {
+    color: #0a0a0a !important;
+}
+
+.light-theme .p-dropdown-panel .p-dropdown-item:hover {
+    background-color: var(--color-bg-hover) !important;
+    color: var(--color-primary) !important;
+}
+
+.light-theme .p-dropdown-panel .p-dropdown-item.p-highlight {
+    background-color: var(--color-primary-light) !important;
+    color: var(--color-primary) !important;
+}
+
+/* Text utilities */
+.text-500 {
+    color: var(--color-text-sub) !important;
+}
+
+.text-600 {
+    color: var(--color-text-main) !important;
+}
+
+.text-700 {
+    color: var(--color-text-main) !important;
+}
+
+/* Light theme text colors */
+.light-theme .text-500 {
+    color: var(--color-text-sub) !important;
+}
+
+.light-theme .text-600,
+.light-theme .text-700 {
+    color: var(--color-text-main) !important;
+}
+
+/* Dark theme overrides */
+.dark-theme .text-500 {
+    color: var(--color-text-sub) !important;
+}
+
+.dark-theme .text-600,
+.dark-theme .text-700 {
+    color: var(--color-text-main) !important;
 }
 
 /* Auth form specific password fix */
@@ -211,9 +411,9 @@ input:-webkit-autofill:active {
 }
 
 .btn-auth-submit:hover {
-     background-color: #ff8833 !important;
-     transform: translateY(-2px);
-     box-shadow: 0 5px 15px rgba(255, 102, 0, 0.4) !important;
+    background-color: #ff8833 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 102, 0, 0.4) !important;
 }
 
 .btn-auth-submit:active {
@@ -265,6 +465,14 @@ input:-webkit-autofill:active {
     min-width: 14rem;
 }
 
+/* Custom dropdown panel for light mode */
+.custom-dropdown-panel {
+    background: var(--color-bg-card) !important;
+    color: var(--color-text-main) !important;
+    border: 1px solid var(--color-border) !important;
+    box-shadow: var(--elevation-2) !important;
+}
+
 .p-menu .p-menuitem-link {
     border-radius: 10px;
     margin: 0.2rem 0;
@@ -301,6 +509,34 @@ input:-webkit-autofill:active {
 .p-menu .p-menuitem-separator {
     border-top: 1px solid var(--color-border);
     margin: 0.4rem 0;
+}
+
+/* ============================================
+   CUSTOM DROPDOWN PANEL (for AvatarBuilder, etc.)
+   ============================================ */
+.custom-dropdown-panel {
+    background-color: var(--color-bg-card) !important;
+    color: var(--color-text-main) !important;
+    border: 1px solid var(--color-border) !important;
+}
+
+.custom-dropdown-panel .p-dropdown-item {
+    color: var(--color-text-main) !important;
+}
+
+.custom-dropdown-panel .p-dropdown-item:hover {
+    background-color: var(--color-bg-hover) !important;
+}
+
+/* Light theme dropdown panel */
+.light-theme .custom-dropdown-panel,
+.custom-dropdown-panel {
+    background-color: var(--color-bg-card) !important;
+}
+
+/* Dark theme dropdown panel */
+.dark-theme .custom-dropdown-panel {
+    background-color: var(--color-bg-card) !important;
 }
 
 /* ============================================
@@ -366,14 +602,18 @@ input:-webkit-autofill:active {
    NOTIFICATION STYLING
    ============================================ */
 .p-toast {
+    background: var(--color-bg-card) !important;
     backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 1200 !important;
 }
 
 .p-toast-message {
-    backdrop-filter: blur(8px);
-    box-shadow: var(--elevation-3);
-    border-radius: 16px;
-    overflow: hidden;
+    background: var(--color-bg-card) !important;
+    box-shadow: var(--elevation-3) !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+    color: var(--color-text-main) !important;
 }
 
 /* ============================================
@@ -396,34 +636,52 @@ input:-webkit-autofill:active {
 }
 
 .auth-page-container {
-     background: transparent;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     min-height: 100vh;
-     padding: 20px;
-     position: relative;
-     overflow: hidden;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* ============================================
+   PROFILE EDIT INPUTS
+   ============================================ */
+.profile-edit-input {
+    width: 100% !important;
+    border-radius: 12px !important;
+    background-color: var(--color-input-bg) !important;
+    border: 1px solid var(--color-input-border) !important;
+    padding: 12px 16px !important;
+    transition: all 0.2s ease;
+    font-size: 15px;
+    color: var(--color-input-text) !important;
+}
+
+.profile-edit-input:focus {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 3px var(--color-primary-light) !important;
+    outline: none;
 }
 
 /* ============================================
    AUTH CARD STYLING
    ============================================ */
 .auth-card {
-     width: 100%;
-     max-width: 500px;
-     padding: 2.5rem;
-     background: transparent;
-     backdrop-filter: blur(20px);
-     -webkit-backdrop-filter: blur(20px);
-     border: 1px solid var(--color-border);
-     border-radius: 28px;
-     box-shadow: var(--shadow-lg);
-     z-index: 1;
-     position: relative;
-     animation: auth-card-entrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-     opacity: 0;
-     transform: translateY(20px) scale(0.98);
+    width: 100%;
+    max-width: 500px;
+    padding: 2.5rem;
+    background: rgba(255, 255, 255, 0.8) !important;
+    border: 1px solid var(--color-border);
+    border-radius: 28px;
+    box-shadow: var(--shadow-lg);
+    z-index: 1;
+    position: relative;
+    animation: auth-card-entrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
 }
 
 @keyframes auth-card-entrance {
@@ -437,9 +695,9 @@ input:-webkit-autofill:active {
    DARK MODE AUTH CARD
    ============================================ */
 .dark-theme .auth-card {
-     background: rgba(10, 10, 10, 0.8);
-     box-shadow: 0 24px 80px rgba(0, 0, 0, 0.8),
-                 inset 0 1px 0 rgba(255, 102, 0, 0.1);
+    background: rgba(10, 10, 10, 0.8);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.8),
+        inset 0 1px 0 rgba(255, 102, 0, 0.1);
 }
 
 /* ============================================
@@ -491,6 +749,7 @@ input:-webkit-autofill:active {
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -502,6 +761,7 @@ input:-webkit-autofill:active {
         opacity: 0;
         transform: translateX(30px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -543,11 +803,11 @@ input:-webkit-autofill:active {
 }
 
 .dark-theme ::-webkit-scrollbar-thumb {
-     background: rgba(255, 102, 0, 0.3);
+    background: rgba(255, 102, 0, 0.3);
 }
 
 .dark-theme ::-webkit-scrollbar-thumb:hover {
-     background: rgba(255, 102, 0, 0.5);
+    background: rgba(255, 102, 0, 0.5);
 }
 
 /* ============================================

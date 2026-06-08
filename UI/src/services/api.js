@@ -89,16 +89,19 @@ export const usersAPI = {
         return response.data;
     },
 
+    // Toggle follow status - follows user if not following, endpoint returns updated user data
     toggleFollow: async (userId) => {
         const response = await api.post(`/users/${userId}/follow`);
         return response.data;
     },
 
+    // Unfollow a user - removes follow relationship, endpoint returns updated user data
     unfollow: async (userId) => {
         const response = await api.post(`/users/${userId}/unfollow`);
         return response.data;
     },
 
+    // Check follow status for a user - returns { isFollowing: boolean }
     getFollowStatus: async (userId) => {
         const response = await api.get(`/users/${userId}/follow-status`);
         return response.data;

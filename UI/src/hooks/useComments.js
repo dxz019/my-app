@@ -45,6 +45,10 @@ export const useComments = (token, currentUser) => {
         return comments[postId] || [];
     }, [comments]);
 
+    const deleteComment = useCallback(async (commentId) => {
+        await commentsAPI.deleteComment(commentId);
+    }, []);
+
     const toggleComments = useCallback((postId, showComments, setShowComments) => {
         if (!showComments) {
             fetchComments(postId);
@@ -58,6 +62,7 @@ export const useComments = (token, currentUser) => {
         fetchComments,
         fetchCommentsForPosts,
         addComment,
+        deleteComment,
         getCommentsForPost,
         toggleComments,
     };

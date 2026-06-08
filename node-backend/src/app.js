@@ -28,8 +28,8 @@ app.use(helmet({
 }));
 
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, 
-    max: 200, 
+    windowMs: 15 * 60 * 1000,
+    max: 200,
     standardHeaders: true,
     legacyHeaders: false,
     message: { detail: 'Too many requests, please try again later' }
@@ -38,7 +38,7 @@ app.use('/users/register', limiter); // Targeted rate limiting
 app.use('/users/login', limiter);
 
 app.use(cors({
-    origin: '*', // For development
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173', // For development
     credentials: true
 }));
 
@@ -76,11 +76,11 @@ app.use((req, res) => {
 // Global Error Handler
 app.use((err, req, res, next) => {
     logger.error(`${err.name}: ${err.message} \n ${err.stack}`);
-    
+
     const statusCode = err.status || 500;
     res.status(statusCode).json({
-        detail: process.env.NODE_ENV === 'production' 
-            ? 'An internal error occurred.' 
+        detail: process.env.NODE_ENV === 'production'
+            ? 'An internal error occurred.'
             : err.message
     });
 });

@@ -91,14 +91,14 @@ const CreatePost = forwardRef(({ currentUser, onCreatePost, showToast }, ref) =>
             dismissableMask
             header={
                 <div className="flex align-items-center gap-3">
-<Avatar
-                         image={getPublicUrl(currentUser?.avatar_url)}
-                         label={!currentUser?.avatar_url ? (currentUser?.username?.charAt(0).toUpperCase() || 'U') : null}
-                         shape="circle"
-                         size="large"
-                         className="shadow-2"
-                         style={{ backgroundColor: 'var(--color-primary)', color: '#fff' }}
-                     />
+                    <Avatar
+                        image={getPublicUrl(currentUser?.avatar_url)}
+                        label={!currentUser?.avatar_url ? (currentUser?.username?.charAt(0).toUpperCase() || 'U') : null}
+                        shape="circle"
+                        size="large"
+                        className="shadow-2"
+                        style={{ backgroundColor: 'var(--color-primary)', color: '#fff' }}
+                    />
                     <div>
                         <div className="font-bold text-lg text-color">
                             {currentUser?.full_name || currentUser?.username || 'You'}
@@ -112,14 +112,14 @@ const CreatePost = forwardRef(({ currentUser, onCreatePost, showToast }, ref) =>
         >
             <div className="flex flex-column gap-3 relative">
                 {/* Text Area */}
-                    <InputTextarea
+                <InputTextarea
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     placeholder="What's on your mind? ✨"
                     rows={5}
                     autoResize
-                    className="w-full border-2 border-transparent focus:border-primary bg-transparent p-3 text-lg font-normal line-height-6 text-color outline-none transition-all"
-                    style={{ minHeight: '120px', resize: 'none', backgroundColor: 'var(--color-input-bg)' }}
+                    className="w-full border-2 border-transparent focus:border-primary bg-transparent p-3 text-lg font-normal line-height-6 outline-none transition-all"
+                    style={{ minHeight: '120px', resize: 'none', backgroundColor: 'var(--color-input-bg)', color: 'var(--color-input-text)' }}
                     autoFocus
                 />
 
@@ -187,6 +187,7 @@ const CreatePost = forwardRef(({ currentUser, onCreatePost, showToast }, ref) =>
                             ref={fileInputRef}
                             type="file"
                             accept="image/jpeg,image/png,image/gif,image/webp"
+                            multiple
                             onChange={handleImageSelect}
                             style={{ display: 'none' }}
                         />
@@ -212,15 +213,15 @@ const CreatePost = forwardRef(({ currentUser, onCreatePost, showToast }, ref) =>
                 {/* Emoji Picker - positioned below toolbar */}
                 {showEmojiPicker && (
                     <div className="relative z-5 border-round-xl overflow-hidden border-1 border-white-alpha-10 shadow-8">
-<EmojiPicker
-                             onEmojiClick={handleEmojiClick}
-                             width="100%"
-                             height={350}
-                             theme="auto"
-                             searchPlaceholder="Search emojis..."
-                             skinTonesDisabled
-                             previewConfig={{ showPreview: false }}
-                         />
+                        <EmojiPicker
+                            onEmojiClick={handleEmojiClick}
+                            width="100%"
+                            height={350}
+                            theme="auto"
+                            searchPlaceholder="Search emojis..."
+                            skinTonesDisabled
+                            previewConfig={{ showPreview: false }}
+                        />
                     </div>
                 )}
             </div>

@@ -6,11 +6,16 @@ import { usersAPI, getPublicUrl } from '../services/api';
 
 const TrendingSidebar = () => {
     const navigate = useNavigate();
+    // Store suggested users to display in "Who to follow" section
     const [suggestedUsers, setSuggestedUsers] = useState([]);
+    // Loading state for initial fetch of suggested users
     const [loading, setLoading] = useState(false);
+    // Track loading state per user ID for follow/unfollow button feedback
     const [followLoading, setFollowLoading] = useState({});
+    // Get auth token from localStorage to check if user is logged in
     const [token] = useState(localStorage.getItem('token'));
 
+    // Predefined trending topics displayed in the sidebar
     const trends = [
         { id: 1, topic: 'Food & Cuisine', posts: '2.4K', sub: '#DeliciousThoughts' },
         { id: 2, topic: 'Artificial Intelligence', posts: '1.8K', sub: '#FutureAI' },
@@ -19,6 +24,7 @@ const TrendingSidebar = () => {
         { id: 5, topic: 'Design Trends', posts: '820', sub: '#Minimalist' }
     ];
 
+    // Fetch 4 random suggested users on component mount
     useEffect(() => {
         const fetchSuggestions = async () => {
             setLoading(true);
@@ -34,37 +40,45 @@ const TrendingSidebar = () => {
         fetchSuggestions();
     }, []);
 
+    // Handle follow/unfollow toggle for a user
     const handleFollow = async (e, userId) => {
+        // Prevent click from bubbling to parent (which navigates to profile)
         e.stopPropagation();
+        // Redirect to login if user is not authenticated
         if (!token) {
             navigate('/login');
             return;
         }
+        // Set loading state for this specific user's button
         setFollowLoading(prev => ({ ...prev, [userId]: true }));
         try {
+            // Check current follow status to determine action
             const user = suggestedUsers.find(u => u.id === userId);
             if (user?.isFollowing) {
-                // Unfollow
+                // User is already followed - unfollow them
                 const result = await usersAPI.unfollow(userId);
+                // Update local state: remove isFollowing and update follower count
                 setSuggestedUsers(prev => prev.map(u => 
                     u.id === userId 
                         ? { ...u, isFollowing: false, followers_count: result?.user?.followers_count ?? u.followers_count } 
                         : u
                 ));
             } else {
-                // Follow
+                // User is not followed - follow them
                 const result = await usersAPI.toggleFollow(userId);
+                // Update local state: mark as following and update follower count
                 setSuggestedUsers(prev => prev.map(u => 
                     u.id === userId 
                         ? { ...u, isFollowing: true, followers_count: result?.user?.followers_count ?? u.followers_count } 
                         : u
                 ));
             }
-            // Dispatch event to refresh current user's following count in header
+            // Dispatch custom event to notify header to refresh current user stats
             window.dispatchEvent(new CustomEvent('user-followed'));
         } catch (error) {
             console.error('Follow error:', error);
         } finally {
+            // Clear loading state for this user's button
             setFollowLoading(prev => ({ ...prev, [userId]: false }));
         }
     };

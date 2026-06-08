@@ -159,31 +159,37 @@ export const userService = {
     },
 
     /**
-     * Follow a user
+     * Follow a user - creates follow relationship and increments counts
      */
     async followUser(followerId, followedId) {
+        // Prevent users from following themselves
         if (followerId === followedId) {
             const error = new Error('Cannot follow yourself');
             error.status = 400;
             throw error;
         }
 
+        // Check if follow relationship already exists to prevent duplicates
         const existingFollow = db.prepare(
             'SELECT 1 FROM follows WHERE follower_id = ? AND followed_id = ?'
         ).get(followerId, followedId);
 
+        // If already following, return early without making changes
         if (existingFollow) {
             return true;
         }
 
+        // Insert new follow relationship into follows table
         const followResult = db.prepare(
             'INSERT INTO follows (follower_id, followed_id) VALUES (?, ?)'
         ).run(followerId, followedId);
 
+        // Increment followers_count for the user being followed
         const followersUpdate = db.prepare(
             'UPDATE users SET followers_count = COALESCE(followers_count, 0) + 1 WHERE id = ?'
         ).run(followedId);
 
+        // Increment following_count for the user who initiated the follow
         const followingUpdate = db.prepare(
             'UPDATE users SET following_count = COALESCE(following_count, 0) + 1 WHERE id = ?'
         ).run(followerId);
@@ -192,17 +198,20 @@ export const userService = {
     },
 
     /**
-     * Unfollow a user
+     * Unfollow a user - removes follow relationship and decrements counts
      */
     async unfollowUser(followerId, followedId) {
+        // Delete the follow relationship from follows table
         const result1 = db.prepare(
             'DELETE FROM follows WHERE follower_id = ? AND followed_id = ?'
         ).run(followerId, followedId);
 
+        // Decrement followers_count for the user being unfollowed (min 0)
         db.prepare(
             'UPDATE users SET followers_count = MAX(0, COALESCE(followers_count, 0) - 1) WHERE id = ?'
         ).run(followedId);
 
+        // Decrement following_count for the user who unfollowed (min 0)
         db.prepare(
             'UPDATE users SET following_count = MAX(0, COALESCE(following_count, 0) - 1) WHERE id = ?'
         ).run(followerId);
@@ -214,10 +223,12 @@ export const userService = {
      * Check if a user is following another user
      */
     async isFollowing(followerId, followedId) {
+        // Query follows table for existing relationship
         const follow = db.prepare(
             'SELECT 1 FROM follows WHERE follower_id = ? AND followed_id = ?'
         ).get(followerId, followedId);
-        
+
+        // Return true if relationship exists, false otherwise
         return !!follow;
     },
 
