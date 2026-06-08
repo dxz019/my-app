@@ -129,16 +129,7 @@ export const API_BASE_URL = 'http://localhost:3001'; // Node.js
 - Refreshes user data via `setSearchedUser` and `refreshCurrentUser`
 - Rolls back on error for better UX
 
-## 🎨 UI Screenshots
 
-| Page | Description |
-|------|-------------|
-| Login | Authentication screen with email/password |
-| Home Feed | Main feed with trending sidebar and post creation |
-| Profile | User profile with follow button and follower/following counts |
-| Explore | Search and hashtag exploration |
-
-*Add actual screenshots in `docs/screenshots/` directory*
 
 ## 📤 Git Commands
 
