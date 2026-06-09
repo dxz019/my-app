@@ -1,68 +1,8 @@
-<<<<<<< HEAD
-# MY-APP
-
-A social media web application built with React and Express.
-
-## Quick Start
-
-```bash
-# Frontend
-cd UI && npm install && npm run dev
-
-# Backend
-cd node-backend && npm install && npm run dev
-```
-
-## Features
-
-- User authentication (register/login with JWT)
-- Create, view, delete posts
-- Comment on posts
-- Search users & posts
-- Image upload support
-
-## Tech Stack
-
-- **Frontend:** React, PrimeReact, Vitest
-- **Backend:** Express, SQLite, JWT, bcrypt
-
-## Environment Variables
-
-Create `.env` in `node-backend/`:
-
-```env
-PORT=3001
-JWT_SECRET=your-secret-key
-DATABASE_URL=./database/blog.db
-```
-
-## API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/users/register` | Register new user |
-| POST | `/users/login` | Login (returns JWT) |
-| GET | `/users/me` | Get current user |
-| GET | `/posts/` | Get all posts |
-| POST | `/posts/` | Create post |
-| DELETE | `/posts/:id` | Delete post |
-| GET | `/comments/post/:postId` | Get comments |
-| POST | `/comments/` | Create comment |
-| POST | `/upload/image` | Upload image |
-
-## Running Tests
-
-```bash
-# Frontend tests
-cd UI && npm run test
-
-# Backend tests
-cd node-backend && npm run test
-```
-=======
 # THOUGHTS - Social Media Platform
 
 A full-stack social media web application with dual backend implementations (Node.js/Express and Python/FastAPI) sharing a SQLite database.
+
+![Thoughts App](https://via.placeholder.com/1200x400/0066FF/ffffff?text=THOUGHTS+Social+Media+App)
 
 ## 🏗️ Architecture
 
@@ -71,36 +11,36 @@ A full-stack social media web application with dual backend implementations (Nod
 - **Backend**: Choose either Node.js/Express OR Python/FastAPI
 - **Database**: Shared SQLite database with normalized schema
 
-![Architecture Diagram](https://via.placeholder.com/800x400/0066FF/ffffff?text=React+%2B+Node.js/FastAPI+%2B+SQLite)
+## ✨ Features
 
-**Key Features:**
-- User authentication (JWT)
-- Posts, comments, likes system
-- User profiles with avatars
-- Search & explore functionality
-- Responsive design with dark/light theme
-- Image upload support
+| Category | Features |
+|----------|----------|
+| **Authentication** | JWT-based login/register, protected routes |
+| **Core** | Posts, comments, likes system |
+| **Social** | Follow/unfollow users, follower counts, suggested users |
+| **UI** | User profiles with avatars, search & explore, dark/light theme |
+| **Media** | Image upload support |
 
 ## 📁 Project Structure
 
 ```
 MY-APP/
-├── UI/                 # React Frontend
+├── UI/                 # React Frontend (port 5173)
 ├── node-backend/       # Node.js/Express API (port 3001)
-├── SQL/               # Python/FastAPI API (port 8000)
-└── shared SQLite DB   # blog.db (in respective backend dirs)
+├── SQL/                # Python/FastAPI API (port 8000)
+└── .gitignore          # Excludes database files from git
 ```
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js 18+
-- Python 3.11+
+- Python 3.11+ (optional, for Python backend)
 - npm or yarn
 
 ### Installation
 ```bash
-git clone <repository-url>
+git clone https://github.com/dxz019/MY-APP.git
 cd MY-APP
 
 # Install frontend
@@ -139,19 +79,6 @@ export const API_BASE_URL = 'http://localhost:3001'; // Node.js
 // export const API_BASE_URL = 'http://localhost:8000'; // Python
 ```
 
-## 🧪 Testing
-
-```bash
-# Frontend
-cd UI && npm run test
-
-# Node.js Backend
-cd node-backend && npm test
-
-# Python Backend
-cd SQL && pytest
-```
-
 ## 📚 Documentation
 
 - [ARCHITECTURE.md](ARCHITECTURE.md) - Detailed system architecture
@@ -159,12 +86,14 @@ cd SQL && pytest
 - [SETUP_GUIDE.md](SETUP_GUIDE.md) - Detailed installation guide
 - [CONTRIBUTING.md](CONTRIBUTING.md) - Development guidelines
 
-## 💡 Technology Choices
+## 💡 Technology Stack
 
-**Frontend:** React 18, PrimeReact, Vite, Vitest  
-**Node.js Backend:** Express, better-sqlite3, JWT, Zod, Winston  
-**Python Backend:** FastAPI, SQLAlchemy, Pydantic, Uvicorn  
-**Database:** SQLite (development/prototyping)
+| Layer | Technologies |
+|-------|-------------|
+| **Frontend** | React 18, PrimeReact, Vite, Vitest, PrimeFlex |
+| **Node.js Backend** | Express, better-sqlite3, JWT, Zod, Winston |
+| **Python Backend** | FastAPI, SQLAlchemy, Pydantic, Uvicorn |
+| **Database** | SQLite (development/prototyping) |
 
 ## ⚠️ Important Notes
 
@@ -173,11 +102,53 @@ cd SQL && pytest
 3. For production: Consider PostgreSQL for better concurrency
 4. Environment variables required - see `.env.example` files
 
-## 🤝 Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on contributing to this project.
-
 ---
 
-*Built with ❤️ for learning full-stack development*
->>>>>>> af07d6f (Update README.md with improved architecture overview and concise project description)
+## 📋 Feature Branch: `feature/follow-unfollow-complete`
+
+### Changes Made
+
+#### Follow/Unfollow System
+- **TrendingSidebar.jsx**: Added `handleFollow()` function with optimistic UI updates and follower count refresh after follow/unfollow
+- **ProfilePage.jsx**: Added `handleFollowToggle()` with immediate count updates after follow/unfollow actions
+- **users.js**: Follow/unfollow endpoints now return updated user object with fresh `followers_count`/`following_count`
+- **userService.js**: Added inline comments explaining follow/unfollow database operations and count updates
+- **Database schema**: Added `followers_count` and `following_count` columns to users table
+- **seed.js**: Updated to initialize count columns correctly
+
+### Key Functions Explained
+
+**TrendingSidebar.handleFollow()**
+- Prevents click event bubbling to profile navigation
+- Checks authentication status before follow action
+- Implements optimistic UI with loading states
+- Updates local state immediately after API call
+
+**ProfilePage.handleFollowToggle()**
+- Optimistically updates follow status before server response
+- Refreshes user data via `setSearchedUser` and `refreshCurrentUser`
+- Rolls back on error for better UX
+
+
+
+## 📤 Git Commands
+
+```bash
+# Create and switch to feature branch
+git checkout -b feature/follow-unfollow-complete
+
+# Add all files except SQL/database
+git add UI/ node-backend/ .gitignore README.md
+
+# Commit changes
+git commit -m "Fix follow/unfollow functionality with count updates
+
+- Add handleFollow() in TrendingSidebar with optimistic UI updates
+- Add handleFollowToggle() in ProfilePage with count refresh
+- Follow/unfollow endpoints return updated user object
+- Add followers_count/following_count to database schema
+- Add inline comments explaining key functions"
+
+# Push to remote
+git push -u origin feature/follow-unfollow-complete
+```
